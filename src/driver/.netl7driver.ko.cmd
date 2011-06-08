@@ -1,0 +1,1 @@
+cmd_/home/hyun/work/dpi/dpi_demo/src/driver/netl7driver.ko := mips64-octeon-linux-gnu-ld  -m elf64btsmip -r -o /home/hyun/work/dpi/dpi_demo/src/driver/netl7driver.ko /home/hyun/work/dpi/dpi_demo/src/driver/netl7driver.o /home/hyun/work/dpi/dpi_demo/src/driver/netl7driver.mod.o

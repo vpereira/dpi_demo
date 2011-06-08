@@ -1,0 +1,312 @@
+This file contains information about using the Netlogic Microsystems
+Linux device driver for the L7 devices.
+
+Operational modes
+=================
+  The device driver has two modes operation that control how contiguous pages of
+  physical memory are allocated for the L7 chips. The first mode, which is the
+  default as shipped from Netlogic, attempts to allocate largest chunk of free
+  memory from the system. It is strongly recommended that the driver be installed
+  as part of the boot process or immediately after to ensure the memory is not
+  extremely fragmented. The amount of memory allocated by the driver can be seen 
+  by looking at the kernel messages using "dmesg". The other mode requires the 
+  user to specify the base physical address and size of the memory range when the 
+  module is loaded into the Linux kernel. 
+
+  The rest of this document provides sample commands/steps to configure the
+  system to load the driver in the fixed address mode.
+
+Usage
+-----
+
+  % insmod netl7driver.ko [fixed_phys_base=XXXX] [fixed_phys_size=YYYY] [dmamem_size=ZZZZ] [verbose={1,0}]
+
+  fixed_phys_base: If specified represents the base of the physical address that
+                   has been reserved by the user when booting the kernel. It must
+                   be specified along with fixed_phys_size. This physical memory
+                   is equally partitioned across all the NetL7 devices on the system.
+
+  fixed_phys_size: The size of physical address region. If specified without the
+                   fixed_phys_base, the driver attempts to grab this amount
+                   of physical memory from the kernel. By default the driver attempts
+                   to allocate 256M of memory.
+
+  dmamem_size:     The NetL7 devices require physical addresses for both the
+                   system and packet memory. This variable specifies how much
+                   of the memory should be reserved for packets. This value
+                   is per device. If not specified the default value is 2M
+                   
+  verbose:         Setting this to 1 will cause the driver to emit more messages
+                   to the logs.
+
+  The total available memory is first partitioned equally by the driver among all
+  available devices. Further this per device chunk is partitioned into dmamem_size
+  specified and the rest as system memory for the device. For default configuration
+  parametres at least 2Mb of system memory is required by the device. If allocation
+  of big chunk fails, the driver attempts to allocate 2Mb for system and 2 Mb for
+  packet memory per device. All values presented to the driver are rounded to page
+  size boundaries.
+
+  % insmod netl7driver.ko
+
+    Driver makes a best effort of allocating memory for devices and packet memory.
+    By default the driver tries to look for 256M of contigious memory
+
+  % insmod netl7driver.ko fixed_phys_size=536870912
+
+    The driver attempts to reserve 512M of memory. If it cannot it will default
+    to whatever it can allocate. This memory is then partitioned equally among
+    all devices
+
+  % insmod netl7driver.ko fixed_phys_size=536870912 dmamem_size=16777216
+
+    Try to allocate 512M and partition equally among all devices. Out of per
+    device chunk  reserve 16M of packet memory for each device. If 512M
+    cannot be allocated, then the driver will default to whatever best it can
+
+  % insmod netl7driver.ko fixed_phys_base=XXXX fixed_phys_size=YYYY dmamem_size=ZZZZ
+
+    The provided fixed physical address region is partitioned equally among
+    all NetL7 devices. Further the value specified by dmamem_size is reserved
+    for packet memory out of the memory chunks obtained by each device
+
+Querying status of device after installation
+--------------------------------------------
+
+  After the driver is installed, one proc file is created per device discovered
+  under /proc/NetL7
+
+      % ls /proc/NetL7/*
+      mars2.0  mars2.1  mars2.2  mars2.3  mars2.4
+
+  Each of the files can be queried for status.
+  
+      % cat /proc/NetL7/mars2.0
+      Device Type  : MARS2
+             Status: Available
+             config.register_map_base_phys = 0xdfbf0000
+             config.register_map_size = 65536
+      The above variables can be directly plugged into config file
+      ioctl the /proc file from your process to obtain the virtual
+      address of the register map
+      =============================================
+      Driver Assigned memory
+      =============================================
+      System Memory: 0x2000000        |       size: 51589120
+      Packet Memory: 0x115ff000       |       size:  2097152
+
+     
+Detailed instructions on specifying a physical memory region
+------------------------------------------------------------
+  By default the Linux kernel will make use of all available DRAM. However the
+  L7 device requires a contiguous chunk of physical memory. A simple solution is
+  to request a memory chunk from the running kernel. Unfortunately most kernel
+  versions (mips, x86) return only 2 or 4 MB.  In general, this is not enough
+  memory to use the Netlogic L7 chips.
+
+  To solve this problem the Linux kernel should be booted with the mem=xxx
+  option to limit the kernel to use less than the amount of DRAM installed in
+  the system. Then the L7 device driver can use the rest of the DRAM. The rest
+  of this document explains how to do this.
+
+  High level overview of how to set up the driver to use fixed physical memory
+  ranges:
+
+1.  The kernel command line "mem=" parameter must be set.
+2.  Compile the module.
+3.  User needs to figure out the correct physical address range to be used by
+    the driver.
+4.  Arrange for the module to be loaded with the correct parameters
+
+Detailed instructions:
+
+1.  For Fedora it should be as simple as editing /boot/grub/grub.conf and adding
+    mem=xxx to the appropriate line. On Ubuntu and Debian installations the file
+    will be /boot/grub/menu.lst. Red Hat kernels should be similar.
+
+    Add this option to all kernels that will be used with the driver.
+
+    (Refer Appendix for similar information for supported custom kernels).
+
+    The kernel mem=xxx option by default is in bytes, the argument can also have
+    a 'k' or 'K' or 'm' or 'M' or 'g' or 'G' suffix to change the units to
+    kilobytes, megabytes, or gigabytes.
+
+2.  On most Linux systems you will need to ensure that the appropriate kernel
+    header packages are installed.
+
+    It should be as simple as typing "make" in the driver directory.
+
+    You should now have a file "netl7driver.ko"
+
+3.  Boot the system and look at the output of 'cat /proc/iomem'
+    You should see lines like these:
+
+    00000000-0009fbff : System RAM
+    000a0000-000bffff : Video RAM area
+    000c0000-000c8fff : Video ROM
+    000cb000-000cbfff : Adapter ROM
+    000f0000-000fffff : reserved
+      000f0000-000fffff : System ROM
+    00100000-cd3fffff : System RAM
+      00100000-00383359 : Kernel code
+      0038335a-004a567f : Kernel data
+      00515000-005c0a1f : Kernel bss
+    d7e7cc00-d7e7ebff : ACPI Non-volatile Storage
+    d7e7ec00-d7e80bff : ACPI Tables
+    d7e80c00-d7ffffff : reserved
+    d8000000-dfffffff : PCI Bus 0000:02
+      d8000000-dfffffff : 0000:02:00.0
+    e0000000-e7ffffff : PCI Bus 0000:05
+      e0000000-e7ffffff : 0000:05:07.0
+    efa00000-efbfffff : PCI Bus 0000:05
+      efa00000-efa1ffff : 0000:05:07.0
+      efaf0000-efafffff : 0000:05:07.0
+    efc00000-efcfffff : PCI Bus 0000:04
+      efcf0000-efcfffff : 0000:04:00.0
+        efcf0000-efcfffff : tg3
+    efd00000-efdfffff : PCI Bus 0000:02
+      efdf0000-efdfffff : 0000:02:00.0
+    efe00000-efefffff : PCI Bus 0000:01
+    effffc00-efffffff : 0000:00:1f.2
+    f0000000-f3ffffff : PCI MMCONFIG 0
+      f0000000-f3ffffff : reserved
+    fec00000-fed003ff : reserved
+      fed00000-fed003ff : HPET 0
+    fed20000-fed9ffff : reserved
+    feda0000-fedacfff : pnp 00:08
+    fee00000-feefffff : reserved
+      fee00000-fee00fff : Local APIC
+    ff980800-ff980bff : 0000:00:1d.7
+      ff980800-ff980bff : ehci_hcd
+    ffb00000-ffffffff : reserved
+
+    Look at the map. Skip the first megabyte and find the big chunk of memory
+    that contains:
+
+    00100000-cd3fffff : System RAM
+      00100000-00383359 : Kernel code
+      0038335a-004a567f : Kernel data
+      00515000-005c0a1f : Kernel bss
+
+    This is the bulk of your DRAM. After the DRAM you will see ACPI tables and
+    various memory regions where PCI maps its windows. Select amount of memory
+    you need for the system memory. Subtract that amount from the
+    last DRAM address + 1 (in the example above 0xcd3fffff + 1 = 0xcd400000).
+    Then open your grub.conf or menu.lst and put the resulting amount of
+    megabytes to your "mem=" option.
+
+    Reboot.
+
+    Look at the /proc/iomem again, noticing the difference between the last DRAM
+    address and the first address used by BIOS. Your "fixed_phys_base=" will be
+    the Last DRAM address + 1. Your "fixed_phys_size=" will be the difference
+    between the "fixed_phys_base=" and the first address used by BIOS.
+
+4. Load the module
+
+    insmod netl7driver.ko fixed_phys_base=XXXXX fixed_phys_size=YYYYY
+
+    This will tell the L7 device driver what physical addresses to use.
+    The driver also accepts an option "verbose=1" that will turn on additional
+    messages.
+
+    On module load you should see something like this on the console or using
+    the 'dmesg' command:
+
+    ... NetL7_V2.0 : driver load process started.
+    ... NetL7_V2.0_pci 0000:04:00.0: setting latency timer to 64
+    ... NetL7_V2.0_pci 0000:05:00.0: setting latency timer to 64
+    ... NetL7_V2.0_pci 0000:06:00.0: setting latency timer to 64
+    ... NetL7_V2.0_pci 0000:07:00.0: setting latency timer to 64
+    ... NetL7_V2.0_pci 0000:08:00.0: setting latency timer to 64
+    ... NetL7_V2.0 : === Probed device no 0 (efee8200) (MARS2) ===
+    ... NetL7_V2.0 :     proc_entry /proc/NetL7/mars2.0
+    ... NetL7_V2.0 :     register_map base = 0xdfbf0000 size = 0x10000
+    ... NetL7_V2.0 :     system memory base = 0x2f000000 size = 0x3333000
+    ... NetL7_V2.0 :     packet memory base = 0x3efff000 size = 0x200000
+    ... NetL7_V2.0 : === Probed device no 1 (efee822c) (MARS2) ===
+    ... NetL7_V2.0 :     proc_entry /proc/NetL7/mars2.1
+    ... NetL7_V2.0 :     register_map base = 0xdfaf0000 size = 0x10000
+    ... NetL7_V2.0 :     system memory base = 0x32333000 size = 0x3333000
+    ... NetL7_V2.0 :     packet memory base = 0x3f1ff000 size = 0x200000
+    ... NetL7_V2.0 : === Probed device no 2 (efee8258) (MARS2) ===
+    ... NetL7_V2.0 :     proc_entry /proc/NetL7/mars2.2
+    ... NetL7_V2.0 :     register_map base = 0xdf9f0000 size = 0x10000
+    ... NetL7_V2.0 :     system memory base = 0x35666000 size = 0x3333000
+    ... NetL7_V2.0 :     packet memory base = 0x3f3ff000 size = 0x200000
+    ... NetL7_V2.0 : === Probed device no 3 (efee8284) (MARS2) ===
+    ... NetL7_V2.0 :     proc_entry /proc/NetL7/mars2.3
+    ... NetL7_V2.0 :     register_map base = 0xdf8f0000 size = 0x10000
+    ... NetL7_V2.0 :     system memory base = 0x38999000 size = 0x3333000
+    ... NetL7_V2.0 :     packet memory base = 0x3f5ff000 size = 0x200000
+    ... NetL7_V2.0 : === Probed device no 4 (efee82b0) (MARS2) ===
+    ... NetL7_V2.0 :     proc_entry /proc/NetL7/mars2.4
+    ... NetL7_V2.0 :     register_map base = 0xdf7f0000 size = 0x10000
+    ... NetL7_V2.0 :     system memory base = 0x3bccc000 size = 0x3333000
+    ... NetL7_V2.0 :     packet memory base = 0x3f7ff000 size = 0x200000
+
+
+Appendix
+=========
+
+Reserving memory with Cavium systems
+-------------------------------------
+    Mips:
+    For the Cavium mips boards you need to get to the boot loader prompt.
+    Normally you would need to use the serial port connected to the board.
+
+    List the boot environment vars using "printenv", look for a bootcmd variable,
+    it should be something like "run xxx" create a yyy var that is a copy of xxx
+    but with mem=NNN added to the command line. Change the bootcmd variable.
+    Use the "saveenv" command to write to the flash card.
+
+Reserving memory with RMI systems
+----------------------------------
+
+Instructions for XLS408
+
+1.  Reboot the board
+2.  When the following message is seen, quickly press any key to stop the
+    auto-boot:
+    A1_XLS408 @ ATX_XLS $
+    Booting in 1 units. Press any key to halt...
+
+    Note that we saw this message right after 7 lines of mac configuration
+    messages:
+    configuring gmac0 in nibble   mode @ 2.5MHz (10Mbps): full duplex mode
+
+3.  Enter the print_physmap command. This will print list of the memory addresses
+    and their descriptions. The steps below assume that there is 2GB of
+    addressable memory of which the last 512m can be reserved for the netl7
+    driver. If the memory map is different, the steps below may be used as an
+    example to work out the load-time arguments for the driver.
+
+4.  Run following command to copy and load OS image vmlinux.atx
+    $ dload pcmcia_1 1 /vmlinux.atx 20000000
+    $ elfload
+
+5.  Then, run the following command to restrict the kernel to use 128MB in the
+    low memory region, which region starts at 1m and another 1GB starting from
+    512m. For this particular device, some of the kernel needs to be in the low
+    memory.
+
+    $ userapp mem=128m@1m mem=1024m@512m
+
+    After the above command, the system will start booting. When complete, the
+    kernel would have occupied upto 1536m, perhaps with some holes in between.
+    The rest of the 512MB is available for the netl7 driver of which it uses
+    256MB. So the netl7 driver can be loaded with a fixed_phys_base anywhere
+    in the first 256m after 1536m.
+
+6.  When the system is ready, load the netl7 driver as:
+    $ insmod netl7driver.ko fixed_phys_base=0x60000000 fixed_phys_size=0x10000000
+
+SDK and compiler flags with RMI systems
+---------------------------------------
+
+1. The recommended SDK and compilation flags are:
+   * <...>/rmi/1.5/mipscross/nptl/bin
+   * -mabi=32
+
+[]

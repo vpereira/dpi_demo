@@ -1,0 +1,5 @@
+CROSS_COMPILE = mips64-octeon-linux-gnu-
+CC = $(CROSS_COMPILE)gcc                                        
+AR = $(CROSS_COMPILE)ar
+RANLIB = $(CROSS_COMPILE)ranlib
+

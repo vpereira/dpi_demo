@@ -1,0 +1,8 @@
+default:
+	gcc -I. -I../include fms_compiler.c -o fms_compiler -lfms_compiler -L../lib/
+	gcc -I. -I../include -DNLM_HW_FMS demo.c -o demo -lfms_compiler -lpacket_api_fms -L../lib/
+	gcc -I. -I../include -I../lib/dataplane -DNLM_HW_FMS -D_GNU_SOURCE mtdemo.c -o demo_mt -lfms_compiler -lpacket_api_fms -L../lib/ -lpthread
+	gcc -I. -I../include -I../lib/dataplane -DNLM_HW_FMS -D_GNU_SOURCE ringdemo.c -o demo_ring -lfms_compiler -lpacket_api_fms -L../lib/ -lpthread
+
+clean:
+	rm -f rxc demo demo_mt demo_ring

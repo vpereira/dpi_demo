@@ -1,0 +1,17 @@
+KERNELDIR := /home/kwan/project/SPG/OCTEON-SDK/linux/kernel_2.6/linux
+CROSS_COMPILE = mips64-octeon-linux-gnu-
+
+CC      = $(CROSS_COMPILE)gcc
+CXX     = $(CROSS_COMPILE)g++
+AR      = $(CROSS_COMPILE)ar
+LD      = $(CROSS_COMPILE)ld
+NM      = $(CROSS_COMPILE)nm
+STRIP   = $(CROSS_COMPILE)strip
+OBJCOPY = $(CROSS_COMPILE)objcopy
+
+default:
+	$(CC) -O2 -c -DNLM_HW_FMS -I../../include -I../../src *.c
+	$(AR) r libpacket_api_fms.a ./*.o
+	cp libpacket_api_fms.a ../
+clean:
+	rm -f *.o
