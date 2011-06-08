@@ -21,7 +21,6 @@
 #include "nlm_driver_api.h"
 #include "nlm_database_api.h"
 #include "nlm_sync.h"
-#include "cli.h"
 
 #define MAX_FRAME_SIZE (0xFFFF)
 #define STATS_CNT_CONFIG 0x5800
@@ -455,11 +454,14 @@ collect_results (struct nlm_device *device, nlm_uintptr_t tid, uint32_t n_jobs)
               printf ("\033[31mIncorrect cookie received in result buffer\n\033[0m");
               return NLM_INVALID_JOB;
             }
+
+		  //printf("[%s] matches[%d].status : %d\n", __FUNCTION__, i, matches[i].status);
           
           switch (matches[i].status)
             {
             case NLM_OK:
             case NLM_END_ANCHORED:
+				printf("[%s] status:NLM_END_ANCHORED or NLM_OK\n", __FUNCTION__);
               if (flag_verbose)
                 printf ("rule = %d byte offset = %d flow offset = %"PRId64" status = '%s'\n",
                         matches[i].u.match.rule_id, matches[i].u.match.byte_offset,
@@ -469,6 +471,7 @@ collect_results (struct nlm_device *device, nlm_uintptr_t tid, uint32_t n_jobs)
               break;
             
             case NLM_END_OF_JOB:
+				printf("[%s] status:NLM_END_OF_JOB\n", __FUNCTION__);
               jobs_completed++;
               break;
               
@@ -499,10 +502,6 @@ packet_process (struct nlm_device *device, uint32_t tid,
   struct timeval tv; /* as clock() is not available on some systems */
   uint32_t start_time, end_time;
   uint32_t flow_id;
-
-  return 0;
-
-  printf("[%s] ring_id:%d, thread_id:%d\n", __FUNCTION__, config->ring_id ,config->thread_id);
   
   /* Divide the packet memory equally among all the threads */
   pkt_mem_size = (2 * 1024 * 1024) / flag_nthreads;
@@ -531,14 +530,10 @@ packet_process (struct nlm_device *device, uint32_t tid,
   /* Wait for all the dataplane threads to be ready */
   val = NLM_ATOMIC_ADD32_RETURN (&ready_to_run[config->ring_id], 1);
   
-  printf("[%s] val:%d\n", __FUNCTION__, val);
-
-#if 0
   if (val == flag_nthreads)
     start_work[config->ring_id] = 1;
   else
     while (start_work[config->ring_id] == 0);
-#endif
   
   /* has to use gettimeofday(), as clock() is not available on some systems */
   gettimeofday (&tv, 0);
@@ -548,19 +543,10 @@ packet_process (struct nlm_device *device, uint32_t tid,
      results. During this process round robin through the flows.
      We do this number of times so that all threads reach steady state
      through the device */
-
- // if(config->ring_id >= 4)
-//	  flag_steady_state_iterations = 0;
-
-	flag_steady_state_iterations = 1;
-
   for (j = 0; j < flag_steady_state_iterations; j++)
     {
       flow_id = 0;
       packet_start = (char *) config->packet_base_virt + pkt_mem_size * tid;
-
-	  printf("[%s] pkt_start:0x%x, pkt_end:0x%x\n", __FUNCTION__, packet_start, packet_end);
-
       while (packet_start + flag_packet_size < packet_end)
         {
           for (i = 0; (packet_start + flag_packet_size) < packet_end && i < PACKETS; i++)
@@ -576,14 +562,10 @@ packet_process (struct nlm_device *device, uint32_t tid,
             }
           
           //DPRINT ("Starting jobs, numflows: %d, job: %p\n", numflows, job);
-          printf("Starting jobs, numflows: %d, job: %p\n", flag_numflows, job);
           TRY (nlm_start_jobs (device, i, job));
-		  if(config->ring_id < 4)
-			  TRY (collect_results (device, tid, i));
+          TRY (collect_results (device, tid, i));
         }
     }
-
-  printf("[%s] end job and collect result\n", __FUNCTION__);
 
   gettimeofday (&tv, 0);
   end_time = tv.tv_sec * 1000000 + tv.tv_usec;
@@ -599,8 +581,7 @@ packet_process (struct nlm_device *device, uint32_t tid,
           status = nlm_destroy_stateful_flow (device, flow[i], (void *) (long) tid);
           if (status == NLM_OK)
             {
-				if(config->ring_id < 4)
-				  TRY (collect_results (device, tid, 1));
+              TRY (collect_results (device, tid, 1));
             }
           else if (status == NLM_END_OF_JOB)
             continue;
@@ -614,10 +595,7 @@ packet_process (struct nlm_device *device, uint32_t tid,
   else
     {
       TRY (nlm_destroy_stateless_flow (device, flow[0]));
-	 // printf("[%s] destroy stateless flow\n", __FUNCTION__);
     }
-
-  printf("[%s] free flow\n", __FUNCTION__);
 
   free (flow);
 
@@ -631,8 +609,6 @@ dataplane_thread (thread_info_t *info)
   struct nlm_device_config config;
   uint32_t tid = info->tid;
   struct nlm_device_config *master_config = info->config;
-
-  printf("[%s]\n", __FUNCTION__);
 
   /* Lets bind the thread to its cpu numbered by its thread ID */
   if (flag_binding)
@@ -650,7 +626,6 @@ dataplane_thread (thread_info_t *info)
   config = *master_config;
   config.thread_id = tid;
       
-#if 1
   TRY (nlm_device_attach (&config, &device));
   
   /* Start sending work to the device */
@@ -658,10 +633,11 @@ dataplane_thread (thread_info_t *info)
 
   /* Detach and cleanup our resources */
   TRY (nlm_device_detach (device));
-#endif
 
   return NLM_OK;
 }
+
+char eval_str[100000]="abcd";
 
 static nlm_status
 init_packet_memory (char *packet_memory, uint32_t mem_size)
@@ -709,8 +685,15 @@ init_packet_memory (char *packet_memory, uint32_t mem_size)
       for (i = 0 ; i < max; i++)
         mem[i] = random ();
     }
-  else
-    memset (packet_memory, 0, mem_size);
+  else{
+	  int i;
+	  for (i = 0; i < mem_size - sizeof (eval_str); i += sizeof (eval_str))
+	  {
+		  memcpy (packet_memory + i, eval_str, sizeof (eval_str));
+	  }
+
+  }
+   // memset (packet_memory, 0, mem_size);
 
   return NLM_OK;
 }
@@ -725,8 +708,6 @@ attach_ring (void *arg)
   thread_info_t *tinfo;
   uint32_t ring_id = (int) (long) arg;
   int i;
-
-  printf("[%s] ring_id:%d\n", __FUNCTION__, ring_id);
   
   /* Lets bind the thread to its cpu numbered by its thread ID */
   if (flag_binding)
@@ -819,10 +800,7 @@ attach_ring (void *arg)
     }
 
   /* Detach and cleanup our resources */
-  printf("[%s] before detach\n", __FUNCTION__);
   TRY (nlm_device_detach (device));
-  printf("[%s] after detach\n", __FUNCTION__);
-
   TRY (nlm_free_device_config (&config));
 
   free (threadids);
@@ -991,28 +969,6 @@ compile_db (void)
 #endif
 }
 
-#define MAXMESG 100
-
-void *
-cli_run(void *arg)
-{
-	RC_CLI_t rc;
-	cli_init_data_t init_data;
-	char input[MAXMESG];
-
-	strcpy(init_data.prefix, "root");
-	cli_init(&init_data);
-
-	cli_engine("");
-
-	for(;;) {
-		fgets(input, MAXMESG, stdin);
-		cli_engine(input);
-	}
-
-	return NULL;
-}
-
 int
 main (int ac, char*av[])
 {
@@ -1025,8 +981,6 @@ main (int ac, char*av[])
   struct nlm_device_config config = DEFAULT_NLM_DEVICE_CONFIG;
   thread_info_t *tinfo;
   enum nlm_ring_id ring_id;
-  pthread_t thr_cli;
-  int status;
   
   avindex = process_args (ac, av);
 
@@ -1087,19 +1041,13 @@ main (int ac, char*av[])
     {
       TRY (load_db (master_device, 0));
     }
-
-#if 0
-  if (pthread_create (&thr_cli, NULL, (void *(*)(void *))cli_run, &config) != 0){
-	  printf("error pthread_create \n");
-  }
-#endif
+  
 
   /* Lets spawn threads for each of the rings. This main thread
      will participate in the work of master ring 0. */
   rings = nrings_active;
   ring_mask = 8;
- // ring_id = NLM_PCIE_RING_3;
-  ring_id = NLM_XAUI_RING_0;
+  ring_id = NLM_PCIE_RING_3;
   memset (ringids, 0, sizeof (ringids));
 
   while (rings > 1)
@@ -1127,7 +1075,6 @@ main (int ac, char*av[])
   thread_throughput[0] = calloc (flag_nthreads, sizeof (float));
 
   /* Create all the dataplane threads that will process the packets */
-#if 1
   for (i = 1; i < flag_nthreads; i++)
     {
       tinfo[i].tid = i;
@@ -1135,7 +1082,6 @@ main (int ac, char*av[])
       if (pthread_create (&threadids[i], NULL, (void *(*)(void *))dataplane_thread, &tinfo[i]) != 0)
         perror_exit ("\033[31mpthread_create() failed\033[0m");
     }
-#endif
 
   if (flag_use_manager)
     {
@@ -1167,7 +1113,7 @@ main (int ac, char*av[])
   
   /* At this point the master device can also participate
      in the packet processing */
- packet_process (master_device, 0, &config);
+  packet_process (master_device, 0, &config);
 
   /* Wait for all the data plane threads to complete */
   for (i = 1; i < flag_nthreads; i++)
@@ -1192,7 +1138,7 @@ main (int ac, char*av[])
         }
     }
   
- // report_counters (0);
+  report_counters (0);
 
   /* Clean up the device */
   TRY (nlm_device_fini (master_device));
@@ -1203,9 +1149,5 @@ main (int ac, char*av[])
   free (thread_throughput[0]);
   
   TRY (free_db ());
-
-  printf("[%s] free resources\n", __FUNCTION__);
-
- // pthread_join(thr_cli, (void *)&status);
   return 0;
 }

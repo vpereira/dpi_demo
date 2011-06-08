@@ -10,13 +10,31 @@
 #include <getopt.h>
 #define _XOPEN_SOURCE 500     /* Or: #define _BSD_SOURCE */
 #include <unistd.h>
+#include <pcap.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <net/ethernet.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#include <netinet/ip_icmp.h>
+#include <pthread.h>
+
 #include "nlm_packet_api.h"
+#include "nlm_packet_api_impl.h"
 #include "nlm_driver_api.h"
 #include "nlm_database_api.h"
-#define DEBUG
 #include "nlm_system.h"
+#include "nlm_fms_formats.h"
 
 #define MAX_FLOWS 96
+
+static uint32_t flag_numflows = 32;
+static uint32_t flag_group_id = 1;
+static uint32_t flag_rule_id = 1;
 
 uint32_t flag_verbose = 0;
 uint32_t group_id = 1;
@@ -54,7 +72,7 @@ enum RING_MODE ring_mode;
 
 
 char rule_str[]="abcd";
-char eval_str[100000]="abcd";
+unsigned char eval_str[64]="abcd";
 
 static char *regex_str = rule_str;
 
@@ -195,8 +213,8 @@ process_args (int ac, char **av)
           break;
 
         case 'g':
-          group_id = atoi (optarg);
-          if (group_id == 0 || group_id > 1023)
+          flag_group_id = atoi (optarg);
+          if (flag_group_id == 0 || flag_group_id > 1023)
             {
               printf ("\033[31mGroup id should be a number.\033[0m\n");
               exit (1);
@@ -355,48 +373,24 @@ compile_db (void)
   struct nlm_rule_group *group;
   struct nlm_rule *rule;
 
-#if defined (NLM_HW_MARS1)
-  db = malloc (nlm_database_sizeof (NLM_DATABASE_HW_MARS1));
-#elif defined (NLM_HW_MARS2)
-  db = malloc (nlm_database_sizeof (NLM_DATABASE_HW_MARS2));
-#elif defined (NLM_HW_FMS)
   db = malloc (nlm_database_sizeof (NLM_DATABASE_HW_FMS));
-#elif defined (NLM_HW_MARS3)
-  db = malloc (nlm_database_sizeof (NLM_DATABASE_HW_MARS3));
-#else
-#error unsupported HW type
-#endif
-
   if (db == NULL)
     {
       printf ("out of memory\n");
       exit (3);
     }
 
-#if defined (NLM_HW_MARS1)
-  TRY (nlm_database_interface_init (NLM_DATABASE_HW_MARS1, db));
-#elif defined (NLM_HW_MARS2)
-  TRY (nlm_database_interface_init (NLM_DATABASE_HW_MARS2, db));
-#elif defined (NLM_HW_FMS)
   TRY (nlm_database_interface_init (NLM_DATABASE_HW_FMS, db));
-#elif defined (NLM_HW_MARS3)
-  TRY (nlm_database_interface_init (NLM_DATABASE_HW_MARS3, db));
-#else
-#error unsupported HW type
-#endif
-
   TRY (nlm_database_set_param (db, NLM_OPTIMIZATION_LEVEL, 2));
-
   TRY (nlm_database_open (db));
-
-  TRY (nlm_database_add_group (db, group_id, &group));
+  TRY (nlm_database_add_group (db, flag_group_id, &group));
 
   if (flag_nongreedy)
     nlm_database_set_param (db, NLM_PARSER_PARAM, NLM_SYNTAX_PCRE_NON_GREEDY);
   else
     nlm_database_set_param (db, NLM_PARSER_PARAM, NLM_SYNTAX_PCRE);
 
-  TRY (nlm_database_add_rule (db, group, 5/*rule_id*/, regex_str, &rule));
+  TRY (nlm_database_add_rule (db, group, flag_rule_id/*rule_id*/, regex_str, &rule));
 
   if (flag_mml)
     TRY (nlm_database_set_rule_action (db, rule, NLM_MIN_MATCH_LENGTH, flag_mml))
@@ -486,19 +480,13 @@ init_packet_memory (char *packet_memory, uint32_t mem_size)
                     input_data_file);
         }
     }
- // else if (db_file == NULL)
-  else {
+  else if (db_file == NULL)
     for (i = 0; i < mem_size - sizeof (eval_str); i += sizeof (eval_str))
       {
         memcpy (packet_memory + i, eval_str, sizeof (eval_str));
       }
-  }
-
-#if 0
-    for (i = 0; i < mem_size - sizeof (eval_str); i += sizeof (eval_str))
-		printf("[%s] %s\n", __FUNCTION__, packet_memory + i);
-#endif
-  
+  else
+	  memset (packet_memory, 0xaa, mem_size);
 
   return NLM_OK;
 }
@@ -951,7 +939,6 @@ run_abcd_on_famos (uint32_t packet_size, char *packet_memory, uint32_t input_fif
     DDPRINT ("\nStarting run...\n");
 
   TRY (init_packet_memory (packet_memory, mem_size));
- // printf("packet_memory:%s\n", packet_memory);
 
   if (ring_mode == RING_MODE_MASTER_ONLY)
     {
@@ -1691,8 +1678,542 @@ do_one_device_run_famos ()
   return NLM_OK;
 }
 
+nlm_status
+setup_configs_and_devices2 (struct nlm_device_config *config_m, struct nlm_device_config *config_a,
+		                           struct nlm_device **db_device, struct nlm_device **search_device)
+{
+	config_m->memory_pool_size = 32 * 1024 * 1024;
+	config_a->memory_pool_size = 32 * 1024 * 1024;
+	config_m->size_of_ddr_memory = ddr_size;
+	config_a->size_of_ddr_memory = ddr_size;
+	config_m->size_of_database_extension_area = flag_spill_size;
+	config_a->size_of_database_extension_area = flag_spill_size;
+
+	TRY (nlm_prepare_device_config (NLM_MASTER_RING , config_m));
+	config_m->ring_id = NLM_MASTER_RING;
+	TRY (nlm_device_init (config_m, db_device));
+	*search_device = *db_device;
+
+	return NLM_OK;
+}
+
+nlm_status
+do_one_device(void)
+{
+	struct nlm_device_config config_m = DEFAULT_NLM_DEVICE_CONFIG;
+	struct nlm_device_config config_a = DEFAULT_NLM_DEVICE_CONFIG;
+	struct nlm_device *db_device, *search_device;
+	char *packet_memory = NULL;
+	uint32_t input_fifo_size = 0;
+	uint32_t psize, do_stateful, do_stateless;
+
+	db_device = NULL;
+	search_device = NULL;
+	TRY (setup_configs_and_devices (&config_m, &config_a, &db_device, &search_device));
+
+	packet_memory = (char *)config_m.packet_base_virt;
+	input_fifo_size = config_m.input_fifo_size;
+	detect_clock_speed (db_device);
+
+	do_stateful = 1;
+	do_stateless = 0;
+
+	if(db_device){
+		if(db_file){
+			TRY (load_db_from_file (db_device, db_file, 0));
+		}
+		else{
+			TRY (load_db (db_device, 0));
+		}
+	}
+
+	TRY (nlm_device_fini (search_device));
+	TRY (nlm_free_device_config (&config_m));
+
+	return NLM_OK;
+}
+
+#define ETHERTYPE_FMS   0x4321
+#define IP_PROTO_UDP	17
+#define IP_PROTO_ICMP	1
+#define IP_PROTO_TCP	6
+#define DATA_LEN	32
+
+#define PROMISCUOUS 1
+#define NONPROMISCUOUS 0
+
+#define PACKETS	32
+
+struct fms_rst_hdr{
+
+};
+
+void
+callback(u_char *useless, const struct pcap_pkthdr *pkthdr,
+		                        const u_char *packet)
+{
+	struct ip *iph;
+//	struct fms_rst_hdr *fms_rst;
+	struct fms_xaui_result_header *fms_rst;
+	static int count = 1;
+	struct ether_header *ep;
+	unsigned short ether_type;
+	int chcnt =0;
+	int length = pkthdr->len;
+
+	ep = (struct ether_header *)packet;
+	packet += sizeof(struct ether_header);
+	ether_type = ntohs(ep->ether_type);
+
+	if(ether_type == ETHERTYPE_IP){
+		char src_ip[32];
+		char dst_ip[32];
+
+		memset(src_ip, 0, 32);
+		memset(dst_ip, 0, 32);
+
+		iph = (struct ip *)packet;
+
+		strcpy(src_ip, inet_ntoa(iph->ip_src));
+		strcpy(dst_ip, inet_ntoa(iph->ip_dst));
+
+		printf("src:%s, dst:%s\n", src_ip, dst_ip) ;
+	}else if(ether_type == 0x4331){
+		fms_rst = (struct fms_xaui_result_header *)packet;
+
+		printf("rst:0x%x, err:0x%x, rd_cnt:%d, cookie:%d\n", fms_rst->flow_type, fms_rst->error, fms_rst->rd_cnt, fms_rst->cookie);
+
+		if(fms_rst->rd_cnt == 0)
+			return;
+
+	}else if(ether_type == ETHERTYPE_FMS){
+
+	}else{
+		printf("Unknown Ethernet Type\n");
+	}
+}
+
+
+
+void *
+packet_rx(void *arg)
+{
+	pcap_t *pcd = NULL;
+	struct bpf_program fp;
+	bpf_u_int32 netp;
+	bpf_u_int32 maskp;
+	char *devname = "eth6_0";
+	char errbuf[PCAP_ERRBUF_SIZE];
+	int ret ;
+	//0xf81edf86ee2f
+	char *opt = "ether host f8:1e:df:86:ee:2f";
+//	opt = NULL;
+	
+
+	ret = pcap_lookupnet(devname, &netp, &maskp, errbuf);
+	if (ret == -1){
+		printf("%s\n", errbuf);
+		exit(1);
+	}
+
+	pcd = pcap_open_live(devname, BUFSIZ,  NONPROMISCUOUS, -1, errbuf);
+	if (pcd == NULL){
+		printf("%s\n", errbuf);
+		exit(1);
+	}
+
+	if (pcap_compile(pcd, &fp, opt, 0, netp) == -1){
+		printf("compile error\n");
+		exit(1);
+	}
+
+	if (pcap_setfilter(pcd, &fp) == -1){
+		printf("setfilter error\n");
+		exit(0);
+	}
+
+	pcap_loop(pcd, PACKETS, callback, NULL);
+
+	return (void *)ret;
+}
+
+void
+ip_chksum(struct iphdr* _iph)
+{
+	int i;
+	unsigned short* iph =  (unsigned short*)_iph;
+	unsigned short len = 20;
+	unsigned int chksum = 0;
+	unsigned short final_chk;
+
+	len >>= 1;
+	_iph->check = 0;
+
+	for(i=0;i<len;i++)
+		chksum += *iph++;
+
+	chksum = (chksum >> 16) + (chksum & 0xffff);
+	chksum += (chksum >> 16);
+
+	final_chk = (~chksum & 0xffff);
+
+	_iph->check = final_chk;
+}
+
+static nlm_status
+packet_tx (struct nlm_device *device, struct nlm_flow *flow, fms_flow_type flow_type)
+{
+	pcap_t *pcap_fp = NULL;
+	char *devname = "eth6_0";
+	char errbuf[PCAP_ERRBUF_SIZE];
+	unsigned char packet[1500];
+	int packet_length = 0;
+	struct ether_header *eth;
+	struct fms_xfd *fms_hdr;
+	struct iphdr *iph;
+	struct udphdr *udph;
+	unsigned short ether_type;
+	int i;
+	int packets = PACKETS;
+
+	if ((pcap_fp = pcap_open_live(devname,
+									65536,
+									1,
+									1000,
+									errbuf 
+									)) == NULL){
+		printf("The specified device: %s cannot be opened by pcap.\n", devname);
+		return 1;
+	}
+
+	memset(packet, 0, sizeof(packet));
+
+	//Ethernet Header
+	eth = (struct ether_header *)packet;
+	eth->ether_dhost[0] = 0x00;
+	eth->ether_dhost[1] = 0x01;
+	eth->ether_dhost[2] = 0x02;
+	eth->ether_dhost[3] = 0x03;
+	eth->ether_dhost[4] = 0x04;
+	eth->ether_dhost[5] = 0x05;
+
+	eth->ether_shost[0] = 0x10;
+	eth->ether_shost[1] = 0x20;
+	eth->ether_shost[2] = 0x30;
+	eth->ether_shost[3] = 0x40;
+	eth->ether_shost[4] = 0x50;
+	eth->ether_shost[5] = 0x60;
+
+	eth->ether_type = htons(ETHERTYPE_FMS);
+//	eth->ether_type = htons(ETHERTYPE_IP);
+	packet_length += sizeof(struct ether_header);
+
+#if 1
+	// DPI XAUI Cammand Header
+	fms_hdr = (struct fms_xfd *)(&packet[packet_length]);
+
+	memset(fms_hdr, 0, sizeof(struct fms_xfd));
+
+	switch(flow_type){
+		case FMS_FLOW_INIT:
+			fms_hdr->flow_type = FMS_FLOW_INIT;
+			fms_hdr->gid_cnt = 0;
+			packets = 1;
+			break;
+		case FMS_FLOW_STATELESS:
+			fms_hdr->flow_type = FMS_FLOW_STATELESS;
+			fms_hdr->end_anchor = 1;
+			fms_hdr->start_anchor = 1;
+
+			fms_hdr->pdf_index_hi = 0;
+			fms_hdr->pdf_index_mi = 0;
+			fms_hdr->pdf_index_lo = 0;
+
+			fms_hdr->gid_cnt = flow->db_group_cnt;
+
+//			fms_hdr->gid_cnt = 2;
+			break;
+		case FMS_FLOW_STATEFUL:
+			fms_hdr->flow_type = FMS_FLOW_STATEFUL;
+			fms_hdr->end_anchor = 0;
+			fms_hdr->start_anchor = 0;
+
+			fms_hdr->pdf_index_hi = (flow->u.stateful.pdf_index >> 16) & 0xff;
+			fms_hdr->pdf_index_mi = (flow->u.stateful.pdf_index >> 8) & 0xff;
+			fms_hdr->pdf_index_lo = (flow->u.stateful.pdf_index & 0xff);
+
+			fms_hdr->gid_cnt = flow->db_group_cnt;
+			break;
+	}
+
+//	fms_hdr->h_offset = sizeof(struct fms_xfd) ;
+	fms_hdr->h_offset = sizeof(struct iphdr) + sizeof(struct udphdr) + 2;
+	fms_hdr->h_offset = 0;
+
+	fms_hdr->pad_cnt = 0;
+	fms_hdr->cookie = 0;
+
+	switch(fms_hdr->gid_cnt){
+		case 0:
+			packet_length += 7;
+			break;
+		case 1:
+			fms_hdr->gid0_hi = (flow->db_group_id[0] >> 8) & 0xf;
+			fms_hdr->gid0_lo = flow->db_group_id[0] & 0xff;
+
+			packet_length += 9;
+			break;
+		case 2:
+			fms_hdr->gid0_hi = (flow->db_group_id[0] >> 8) & 0xf;
+			fms_hdr->gid0_lo = flow->db_group_id[0] & 0xff;
+
+			fms_hdr->gid1_hi = (flow->db_group_id[1] >> 8) & 0xf;
+			fms_hdr->gid1_lo = flow->db_group_id[1] & 0xff;
+
+			packet_length += 10;
+			break;
+		case 3:
+			fms_hdr->gid0_hi = (flow->db_group_id[0] >> 8) & 0xf;
+			fms_hdr->gid0_lo = flow->db_group_id[0] & 0xff;
+
+			fms_hdr->gid1_hi = (flow->db_group_id[1] >> 8) & 0xf;
+			fms_hdr->gid1_lo = flow->db_group_id[1] & 0xff;
+
+			fms_hdr->gid2_hi = (flow->db_group_id[2] >> 8) & 0xf;
+			fms_hdr->gid2_lo = flow->db_group_id[2] & 0xff;
+
+			packet_length += 12;
+			break;
+		case 4:
+			fms_hdr->gid0_hi = (flow->db_group_id[0] >> 8) & 0xf;
+			fms_hdr->gid0_lo = flow->db_group_id[0] & 0xff;
+
+			fms_hdr->gid1_hi = (flow->db_group_id[1] >> 8) & 0xf;
+			fms_hdr->gid1_lo = flow->db_group_id[1] & 0xff;
+
+			fms_hdr->gid2_hi = (flow->db_group_id[2] >> 8) & 0xf;
+			fms_hdr->gid2_lo = flow->db_group_id[2] & 0xff;
+
+			fms_hdr->gid3_hi = (flow->db_group_id[3] >> 8) & 0xf;
+			fms_hdr->gid3_lo = flow->db_group_id[3] & 0xff;
+
+			packet_length += 13;
+			break;
+		case 5:
+			fms_hdr->gid0_hi = (flow->db_group_id[0] >> 8) & 0xf;
+			fms_hdr->gid0_lo = flow->db_group_id[0] & 0xff;
+
+			fms_hdr->gid1_hi = (flow->db_group_id[1] >> 8) & 0xf;
+			fms_hdr->gid1_lo = flow->db_group_id[1] & 0xff;
+
+			fms_hdr->gid2_hi = (flow->db_group_id[2] >> 8) & 0xf;
+			fms_hdr->gid2_lo = flow->db_group_id[2] & 0xff;
+
+			fms_hdr->gid3_hi = (flow->db_group_id[3] >> 8) & 0xf;
+			fms_hdr->gid3_lo = flow->db_group_id[3] & 0xff;
+
+			fms_hdr->gid4_hi = (flow->db_group_id[4] >> 8) & 0xf;
+			fms_hdr->gid4_lo = flow->db_group_id[4] & 0xff;
+
+			packet_length += 15;
+			break;
+		case 6:
+			fms_hdr->gid0_hi = (flow->db_group_id[0] >> 8) & 0xf;
+			fms_hdr->gid0_lo = flow->db_group_id[0] & 0xff;
+
+			fms_hdr->gid1_hi = (flow->db_group_id[1] >> 8) & 0xf;
+			fms_hdr->gid1_lo = flow->db_group_id[1] & 0xff;
+
+			fms_hdr->gid2_hi = (flow->db_group_id[2] >> 8) & 0xf;
+			fms_hdr->gid2_lo = flow->db_group_id[2] & 0xff;
+
+			fms_hdr->gid3_hi = (flow->db_group_id[3] >> 8) & 0xf;
+			fms_hdr->gid3_lo = flow->db_group_id[3] & 0xff;
+
+			fms_hdr->gid4_hi = (flow->db_group_id[4] >> 8) & 0xf;
+			fms_hdr->gid4_lo = flow->db_group_id[4] & 0xff;
+
+			fms_hdr->gid5_hi = (flow->db_group_id[5] >> 8) & 0xf;
+			fms_hdr->gid5_lo = flow->db_group_id[5] & 0xff;
+
+			packet_length += 16;
+			break;
+		default:
+			break;
+	}
+
+	printf("gid_cnt:%d, ", fms_hdr->gid_cnt);
+	for(i=0;i<6;i++)
+		printf("gid%d:%d, ", i, flow->db_group_id[i]);
+	printf("pdf_index:%d\n", flow->u.stateful.pdf_index);
+
+	ether_type = htons(ETHERTYPE_IP);
+	memcpy(packet+packet_length, &ether_type, sizeof(ether_type));
+	packet_length += sizeof(ether_type);
+#endif
+
+	// IP Header
+	iph = (struct iphdr *)(&packet[packet_length]);
+	iph->ihl = 5;
+	iph->version = 4;
+	iph->tos = 0;
+	iph->id = 1;
+	iph->frag_off = 0;
+	iph->ttl = 128;
+	iph->saddr = htonl(0xc0a82115);
+	iph->daddr = htonl(0xc0a83869);
+	iph->protocol = IP_PROTO_UDP;
+	iph->tot_len = htons( sizeof(struct iphdr)+sizeof(struct udphdr)+sizeof(eval_str));
+	ip_chksum(iph);
+
+	packet_length += sizeof(struct iphdr);
+
+
+	// UDP Header
+	udph = (struct udphdr *)(&packet[packet_length]);
+	udph->source = htons(300);
+	udph->dest = htons(80);
+	udph->len = htons(sizeof(struct udphdr)+DATA_LEN);
+	udph->check = 0;
+
+	packet_length += sizeof(struct udphdr);
+
+	memcpy(packet+packet_length, eval_str, sizeof(eval_str));
+	packet_length += sizeof(eval_str);
+
+#if 0
+	for(i=0;i<10;i++){
+		memcpy(packet+packet_length, eval_str, strlen(eval_str));
+		packet_length += strlen(eval_str);
+	}
+#endif
+
+	for(i=0;i<packets;i++){
+		fms_hdr->cookie = i;
+		if(pcap_sendpacket(pcap_fp, packet, packet_length) != 0){
+			printf("Error sending the packet:%s\n", pcap_geterr(pcap_fp));
+		}
+		usleep(1000000);
+	}
+
+	pcap_close(pcap_fp);
+
+	return NLM_OK;
+}
+
+static nlm_status
+packet_process (struct nlm_device *device, struct nlm_device_config *config, int flag_stateful)
+{
+	char *packet_start, *packet_end;
+	struct nlm_flow **flow;
+	uint32_t pkt_mem_size;
+	int32_t i, j, val;
+	pthread_t p_thread;
+	int thr_id;
+	int status;
+
+	pkt_mem_size = (2 * 1024 * 1024);
+	packet_start = (char *) config->packet_base_virt;
+	packet_end = packet_start + pkt_mem_size;
+
+	if (flag_stateful){
+		flow = malloc (flag_numflows * sizeof (struct nlm_flow *));
+		for (i = 0; i < flag_numflows; i++){
+			TRY (nlm_create_flow (device, NLM_FLOW_TYPE_STATEFUL, &flow[i]));
+			TRY (nlm_flow_add_database_and_group (device, flow[i], 0, flag_group_id));
+		}
+	}else{
+		flag_numflows = 1;
+		flow = malloc (sizeof (struct nlm_flow *));
+		TRY (nlm_create_flow (device, NLM_FLOW_TYPE_STATELESS, &flow[0]));
+		TRY (nlm_flow_add_database_and_group (device, flow[0], 0, flag_group_id));
+	}
+
+//	packet_tx(device, flow[0], FMS_FLOW_INIT);
+
+	thr_id = pthread_create(&p_thread, NULL, packet_rx, (void *)NULL);
+	if (thr_id < 0){
+		perror("thread create error : ");
+		return -1;
+	}
+
+	packet_tx(device, flow[0], FMS_FLOW_STATELESS);
+
+	if (flag_stateful){
+		for (i = 0; i < flag_numflows; i++){
+			TRY (nlm_flow_remove_database_and_group (device, flow[i], 0, flag_group_id));
+		}
+	}else{
+		TRY (nlm_flow_remove_database_and_group (device, flow[0], 0, flag_group_id));
+	}
+
+	pthread_join(p_thread, (void *)&status);
+
+	free (flow);
+	return NLM_OK;
+}
+
 int
 main (int ac, char **av)
+{
+	struct nlm_device *master_device;
+	uint32_t device_cnt = 0, psize, avindex, dnum;
+	nlm_status status;
+	struct nlm_device_config config_m = DEFAULT_NLM_DEVICE_CONFIG;
+	struct nlm_device_config config_a = DEFAULT_NLM_DEVICE_CONFIG;
+	int i;
+
+	avindex = process_args (ac, av);
+	if (flag_verbose)
+	{
+		if (db_file)
+			DDPRINT ("Using database '%s' to search\n", db_file);
+	 	else
+			DDPRINT ("Searching regex '%s'\n", regex_str);
+	}
+
+//	TRY (compile_db ());
+
+	status = nlm_get_device_count (&device_cnt);
+	if (status != NLM_OK)
+		return status;
+
+	TRY (nlm_prepare_device_config (NLM_MASTER_RING , &config_m));
+	TRY (nlm_device_init (&config_m, &master_device));
+
+	if (db_file)
+		TRY (load_db_from_file (master_device, db_file, 0))
+	else
+		TRY (load_db (master_device, 0))
+
+	config_a.size_of_database_extension_area = flag_spill_size;
+	config_a.memory_pool_size = 32 * 1024 * 1024;
+	config_a.max_threads = 1;
+	config_a.using_manager_thread = 0;
+
+	config_a.input_fifo_size = 256 * 1024;
+	config_a.output_fifo_size = 4 * config_a.input_fifo_size;
+	config_a.ring_id = NLM_XAUI_RING_0;
+	config_a.thread_id = 0;
+
+	TRY (nlm_prepare_device_config (NLM_MASTER_RING , &config_a));
+
+	TRY (init_packet_memory ((char *) config_a.packet_base_virt, 2 * 1024 * 1024));
+	TRY (nlm_device_attach (&config_a, &master_device));
+
+	while(1);
+//	packet_process (master_device, &config_a, 0);
+
+	TRY (nlm_device_fini (master_device));
+	TRY (nlm_free_device_config (&config_m));
+
+	TRY (free_db ());
+
+	return 0;
+}
+
+int
+main2(int ac, char **av)
 {
   uint32_t device_cnt = 0, psize, avindex, dnum;
 
@@ -1719,8 +2240,6 @@ main (int ac, char **av)
       TRY (test_max_flow ());
       num_of_flows = 0;
     }
-
-  printf("num_of_flows:%d, device_cnt:%d\n", num_of_flows, device_cnt);
 
   if (num_of_flows == 1)
     {

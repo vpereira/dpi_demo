@@ -234,10 +234,10 @@ BLOCK_GET_VIRT_ID	lib/dataplane/loader_fms.c	190;"	d	file:
 BLOCK_IDLE_CHECK	lib/dataplane/nlm_fms_registers.h	846;"	d
 BLOCK_IDLE_READY	lib/dataplane/nlm_fms_registers.h	849;"	d
 BLOCK_PAUSE	lib/dataplane/loader_fms.c	99;"	d	file:
-BLOCK_REG_READ	src/demo.c	517;"	d	file:
-BLOCK_REG_READ	src/dpi_demo.c	531;"	d	file:
-BLOCK_REG_WRITE	src/demo.c	507;"	d	file:
-BLOCK_REG_WRITE	src/dpi_demo.c	521;"	d	file:
+BLOCK_REG_READ	src/demo.c	525;"	d	file:
+BLOCK_REG_READ	src/dpi_loop.c	513;"	d	file:
+BLOCK_REG_WRITE	src/demo.c	515;"	d	file:
+BLOCK_REG_WRITE	src/dpi_loop.c	503;"	d	file:
 BLOCK_RESUME	lib/dataplane/loader_fms.c	116;"	d	file:
 BLOCK_SET_VIRT_ID_ASYNC	lib/dataplane/loader_fms.c	180;"	d	file:
 BLOCK_TEST_CONFIG	lib/dataplane/nlm_fms_registers.h	871;"	d
@@ -346,8 +346,9 @@ CC	libpcap/Makefile	/^CC = $(CROSS_COMPILE)gcc                                  
 CC	src/Makefile	/^CC      = $(CROSS_COMPILE)gcc$/;"	m
 CC	src/driver/Makefile	/^CC      = $(CROSS_COMPILE)gcc$/;"	m
 CCOPT	libpcap/Makefile	/^CCOPT = -O2 -fpic$/;"	m
+CFLAGS	lib/dataplane/Makefile	/^CFLAGS = -O2  #-D__mips -D__GNUC__$/;"	m
 CFLAGS	libpcap/Makefile	/^CFLAGS = $(CCOPT) $(INCLS) $(DEFS)$/;"	m
-CFLAGS	src/Makefile	/^CFLAGS = -I. -I..\/include -I$(PCAP_INCLUDE) -DNO_COMPILER -DNLM_HW_FMS$/;"	m
+CFLAGS	src/Makefile	/^CFLAGS = -I. -I..\/include -I..\/lib\/dataplane -I$(PCAP_INCLUDE) -DNLM_HW_FMS -DNO_COMPILER$/;"	m
 CHECK_NULL	include/nlm_system.h	140;"	d
 CHECK_NULL	lib/dataplane/nlm_system.h	140;"	d
 CHUNK0SIZE	libpcap/gencode.c	188;"	d	file:
@@ -355,8 +356,8 @@ CHUNKSIZE	libpcap/dlpisubs.c	33;"	d	file:
 CHUNKSIZE	libpcap/pcap-nit.c	64;"	d	file:
 CHUNKSIZE	libpcap/pcap-snit.c	77;"	d	file:
 CLEANFILES	libpcap/Makefile	/^CLEANFILES = $(OBJ) libpcap.* filtertest findalldevstest selpolltest \\$/;"	m
-CLEAR_AND_START_COUNTERS	src/demo.c	501;"	d	file:
-CLEAR_AND_START_COUNTERS	src/dpi_demo.c	515;"	d	file:
+CLEAR_AND_START_COUNTERS	src/demo.c	509;"	d	file:
+CLEAR_AND_START_COUNTERS	src/dpi_loop.c	497;"	d	file:
 CLEAR_BIT	include/nlm_system.h	89;"	d
 CLEAR_BIT	lib/dataplane/nlm_system.h	89;"	d
 CLEAR_BITMAP	include/nlm_system.h	90;"	d
@@ -482,7 +483,7 @@ COPY_BITMAP	lib/dataplane/nlm_system.h	101;"	d
 COUNTER0_HI	lib/dataplane/nlm_fms_registers.h	1360;"	d
 COUNTER0_LOW	lib/dataplane/nlm_fms_registers.h	1358;"	d
 COUNTER0_LOW	src/mtdemo.c	29;"	d	file:
-COUNTER0_LOW	src/ringdemo.c	29;"	d	file:
+COUNTER0_LOW	src/ringdemo.c	28;"	d	file:
 COUNTER0_LOW	src/xaui_demo.c	33;"	d	file:
 COUNTER1_HI	lib/dataplane/nlm_fms_registers.h	1364;"	d
 COUNTER1_LOW	lib/dataplane/nlm_fms_registers.h	1362;"	d
@@ -529,6 +530,8 @@ CardHandle	libpcap/msdos/ndis2.h	/^      } CardHandle;$/;"	t	typeref:struct:_Car
 CheckElement	libpcap/msdos/pktdrvr.c	/^LOCAL __inline BOOL CheckElement (RX_ELEMENT *rx)$/;"	f
 CheckMacFeatures	libpcap/msdos/ndis2.c	/^static int CheckMacFeatures (CardHandle *card)$/;"	f	file:
 CommonChars	libpcap/msdos/ndis2.h	/^      } CommonChars;$/;"	t	typeref:struct:_CommonChars
+DATA_LEN	src/dpi_demo.c	393;"	d	file:
+DATA_LEN	src/dpi_loop.c	1740;"	d	file:
 DATA_STREAM_AVAIL	lib/dataplane/nlm_fms_registers.h	862;"	d
 DDPRINT	include/nlm_system.h	31;"	d
 DDPRINT	include/nlm_system.h	34;"	d
@@ -1143,6 +1146,8 @@ ETHERTYPE_ATALK	libpcap/ethertype.h	91;"	d
 ETHERTYPE_DECDNS	libpcap/ethertype.h	79;"	d
 ETHERTYPE_DECDTS	libpcap/ethertype.h	82;"	d
 ETHERTYPE_DN	libpcap/ethertype.h	64;"	d
+ETHERTYPE_FMS	src/dpi_demo.c	389;"	d	file:
+ETHERTYPE_FMS	src/dpi_loop.c	1736;"	d	file:
 ETHERTYPE_IP	libpcap/ethertype.h	40;"	d
 ETHERTYPE_IPV6	libpcap/ethertype.h	103;"	d
 ETHERTYPE_IPX	libpcap/ethertype.h	100;"	d
@@ -1304,10 +1309,10 @@ FD_STATUS	lib/dataplane/nlm_mars_registers.h	66;"	d
 FGETS_BUF_SIZE	src/fms_compiler.c	55;"	d	file:
 FID_SID_MASK	lib/dataplane/nlm_mars_registers.h	103;"	d
 FIELD_BEGIN_POS	libpcap/atmuni31.h	87;"	d
-FIFO_SIZE	src/demo.c	1125;"	d	file:
-FIFO_SIZE	src/dpi_demo.c	1139;"	d	file:
+FIFO_SIZE	src/demo.c	1134;"	d	file:
+FIFO_SIZE	src/dpi_loop.c	1121;"	d	file:
 FIFO_SIZE	src/mtdemo.c	30;"	d	file:
-FIFO_SIZE	src/ringdemo.c	30;"	d	file:
+FIFO_SIZE	src/ringdemo.c	29;"	d	file:
 FIFO_SIZE	src/xaui_demo.c	34;"	d	file:
 FILTER_BROADCAST	libpcap/msdos/ndis2.h	/^        FILTER_BROADCAST        = 2,$/;"	e	enum:__anon87
 FILTER_DIRECTED	libpcap/msdos/ndis2.h	/^        FILTER_DIRECTED         = 1,$/;"	e	enum:__anon87
@@ -1721,6 +1726,12 @@ IPX	libpcap/grammar.c	/^     IPX = 339,$/;"	e	enum:yytokentype	file:
 IPX	libpcap/grammar.c	269;"	d	file:
 IPX	libpcap/tokdefs.h	/^     IPX = 339,$/;"	e	enum:yytokentype
 IPX	libpcap/tokdefs.h	234;"	d
+IP_PROTO_ICMP	src/dpi_demo.c	391;"	d	file:
+IP_PROTO_ICMP	src/dpi_loop.c	1738;"	d	file:
+IP_PROTO_TCP	src/dpi_demo.c	392;"	d	file:
+IP_PROTO_TCP	src/dpi_loop.c	1739;"	d	file:
+IP_PROTO_UDP	src/dpi_demo.c	390;"	d	file:
+IP_PROTO_UDP	src/dpi_loop.c	1737;"	d	file:
 IQUERY	libpcap/Win32/Include/arpa/nameser.h	111;"	d
 ISIS	libpcap/grammar.c	/^     ISIS = 330,$/;"	e	enum:yytokentype	file:
 ISIS	libpcap/grammar.c	260;"	d	file:
@@ -2044,28 +2055,28 @@ MAXDLBUF	libpcap/pcap-dlpi.c	138;"	d	file:
 MAXDNAME	libpcap/Win32/Include/arpa/nameser.h	92;"	d
 MAXIMUM_SNAPLEN	libpcap/opentest.c	36;"	d	file:
 MAXLABEL	libpcap/Win32/Include/arpa/nameser.h	94;"	d
-MAXMESG	src/ringdemo.c	994;"	d	file:
 MAX_ACCEPT_PER_BLOCK	lib/dataplane/nlm_fms_formats.h	96;"	d
 MAX_CHASSIS	libpcap/pcap-sita.c	51;"	d	file:
 MAX_DAG_PACKET	libpcap/pcap-dag.c	94;"	d	file:
-MAX_DEVICES	src/demo.c	1121;"	d	file:
-MAX_DEVICES	src/dpi_demo.c	1135;"	d	file:
+MAX_DEVICES	src/demo.c	1130;"	d	file:
+MAX_DEVICES	src/dpi_loop.c	1117;"	d	file:
 MAX_DEVICES	src/driver/netl7driver.c	83;"	d	file:
 MAX_FLOWS	src/demo.c	19;"	d	file:
-MAX_FLOWS	src/dpi_demo.c	31;"	d	file:
+MAX_FLOWS	src/dpi_demo.c	33;"	d	file:
+MAX_FLOWS	src/dpi_loop.c	33;"	d	file:
 MAX_FRAME_SIZE	src/mtdemo.c	26;"	d	file:
-MAX_FRAME_SIZE	src/ringdemo.c	26;"	d	file:
+MAX_FRAME_SIZE	src/ringdemo.c	25;"	d	file:
 MAX_FRAME_SIZE	src/xaui_demo.c	30;"	d	file:
 MAX_GEOSLOT	libpcap/pcap-sita.c	52;"	d	file:
-MAX_JOB_CNT	src/demo.c	1124;"	d	file:
-MAX_JOB_CNT	src/dpi_demo.c	1138;"	d	file:
+MAX_JOB_CNT	src/demo.c	1133;"	d	file:
+MAX_JOB_CNT	src/dpi_loop.c	1120;"	d	file:
 MAX_LINE_SIZE	libpcap/pcap-sita.c	50;"	d	file:
 MAX_LINKHEADER_SIZE	libpcap/pcap-linux.c	279;"	d	file:
 MAX_MATCHES_PER_JOB	lib/dataplane/nlm_fms_registers.h	2804;"	d
 MAX_MATCHES_PER_JOB_DEFAULT_VALUE	lib/dataplane/nlm_mars_registers.h	322;"	d
 MAX_NUM_DEBUG_STRINGS	libpcap/msdos/ndis2.c	64;"	d	file:
-MAX_RESULTS	src/demo.c	1126;"	d	file:
-MAX_RESULTS	src/dpi_demo.c	1140;"	d	file:
+MAX_RESULTS	src/demo.c	1135;"	d	file:
+MAX_RESULTS	src/dpi_loop.c	1122;"	d	file:
 MAX_SA_LEN	libpcap/fad-gifc.c	123;"	d	file:
 MAX_STATES_PER_BYTE_DEFAULT_VALUE	lib/dataplane/nlm_mars_registers.h	323;"	d
 MAYBE_SWAPPED	libpcap/pcap-int.h	/^	MAYBE_SWAPPED$/;"	e	enum:__anon106
@@ -2164,7 +2175,7 @@ MTU	libpcap/msdos/pktdrvr.h	/^        WORD  MTU;          \/* HiPerformance data
 MUST_CLEAR_PROMISC	libpcap/pcap-int.h	203;"	d
 MUST_CLEAR_RFMON	libpcap/pcap-int.h	204;"	d
 MUST_DELETE_MONIF	libpcap/pcap-int.h	205;"	d
-MUX_DB_GID	lib/dataplane/fms_packet_api.c	2582;"	d	file:
+MUX_DB_GID	lib/dataplane/fms_packet_api.c	2583;"	d	file:
 M_DPC	libpcap/gencode.h	188;"	d
 M_FISU	libpcap/gencode.h	181;"	d
 M_IFADDR	libpcap/Win32/Include/net/if.h	/^MALLOC_DECLARE(M_IFADDR);$/;"	v
@@ -2514,6 +2525,8 @@ NOCHANGE	libpcap/Win32/Include/arpa/nameser.h	139;"	d
 NODEMASK	libpcap/nametoaddr.c	385;"	d	file:
 NOERROR	libpcap/Win32/Include/arpa/nameser.h	130;"	d
 NONE	lib/dataplane/nlm_fms_formats.h	/^  NONE = 0,$/;"	e	enum:ddr3_leveling_mode
+NONPROMISCUOUS	src/dpi_demo.c	396;"	d	file:
+NONPROMISCUOUS	src/dpi_loop.c	1743;"	d	file:
 NOP	libpcap/optimize.c	77;"	d	file:
 NORESET_SCRATCH	lib/dataplane/nlm_fms_registers.h	80;"	d
 NOTIMP	libpcap/Win32/Include/arpa/nameser.h	135;"	d
@@ -2624,12 +2637,14 @@ PACKAGE_NAME	libpcap/config.h	201;"	d
 PACKAGE_STRING	libpcap/config.h	204;"	d
 PACKAGE_TARNAME	libpcap/config.h	207;"	d
 PACKAGE_VERSION	libpcap/config.h	210;"	d
+PACKETS	src/dpi_demo.c	397;"	d	file:
+PACKETS	src/dpi_loop.c	1745;"	d	file:
 PACKETS	src/mtdemo.c	506;"	d	file:
-PACKETS	src/ringdemo.c	492;"	d	file:
+PACKETS	src/ringdemo.c	495;"	d	file:
 PACKETS	src/xaui_demo.c	496;"	d	file:
 PACKETSZ	libpcap/Win32/Include/arpa/nameser.h	91;"	d
-PACKET_MEM_SIZE	src/demo.c	1122;"	d	file:
-PACKET_MEM_SIZE	src/dpi_demo.c	1136;"	d	file:
+PACKET_MEM_SIZE	src/demo.c	1131;"	d	file:
+PACKET_MEM_SIZE	src/dpi_loop.c	1118;"	d	file:
 PAGE	libpcap/msdos/ndis_0.asm	/^PAGE 60,132$/;"	l
 PAGE	libpcap/msdos/pkt_rx0.asm	/^PAGE 60,132$/;"	l
 PARSE_INT_FORMAT	libpcap/missing/snprintf.c	275;"	d	file:
@@ -3150,6 +3165,8 @@ PRIx64	libpcap/Win32/Include/bittypes.h	125;"	d
 PRIx64	libpcap/Win32/Include/bittypes.h	127;"	d
 PROC_USB_BUS_DIR	libpcap/pcap-usb-linux.c	71;"	d	file:
 PROG	libpcap/Makefile	/^PROG=libpcap$/;"	m
+PROMISCUOUS	src/dpi_demo.c	395;"	d	file:
+PROMISCUOUS	src/dpi_loop.c	1742;"	d	file:
 PROTO	libpcap/grammar.c	/^     PROTO = 268,$/;"	e	enum:yytokentype	file:
 PROTO	libpcap/grammar.c	198;"	d	file:
 PROTO	libpcap/tokdefs.h	/^     PROTO = 268,$/;"	e	enum:yytokentype
@@ -3392,10 +3409,10 @@ READ_ARRAY_ENTRY	lib/dataplane/loader_fms.c	51;"	d	file:
 RECEIVE_BUF_SIZE	libpcap/pcap-dos.h	106;"	d
 RECEIVE_QUEUE_SIZE	libpcap/pcap-dos.h	102;"	d
 REFUSED	libpcap/Win32/Include/arpa/nameser.h	136;"	d
-REG_READ	src/demo.c	499;"	d	file:
-REG_READ	src/dpi_demo.c	513;"	d	file:
-REG_WRITE	src/demo.c	498;"	d	file:
-REG_WRITE	src/dpi_demo.c	512;"	d	file:
+REG_READ	src/demo.c	507;"	d	file:
+REG_READ	src/dpi_loop.c	495;"	d	file:
+REG_WRITE	src/demo.c	506;"	d	file:
+REG_WRITE	src/dpi_loop.c	494;"	d	file:
 REJECT	libpcap/scanner.c	2682;"	d	file:
 RELEASE	libpcap/atmuni31.h	50;"	d
 RELEASE_DONE	libpcap/atmuni31.h	51;"	d
@@ -3426,14 +3443,19 @@ RETF	libpcap/msdos/ndis_0.asm	/^RETF$/;"	l
 RING_GET_FRAME	libpcap/pcap-linux.c	315;"	d	file:
 RING_MODE	src/demo.c	/^enum RING_MODE {$/;"	g	file:
 RING_MODE	src/dpi_demo.c	/^enum RING_MODE {$/;"	g	file:
+RING_MODE	src/dpi_loop.c	/^enum RING_MODE {$/;"	g	file:
 RING_MODE_ATTACH_ONLY	src/demo.c	/^  RING_MODE_ATTACH_ONLY,$/;"	e	enum:RING_MODE	file:
 RING_MODE_ATTACH_ONLY	src/dpi_demo.c	/^  RING_MODE_ATTACH_ONLY,$/;"	e	enum:RING_MODE	file:
+RING_MODE_ATTACH_ONLY	src/dpi_loop.c	/^  RING_MODE_ATTACH_ONLY,$/;"	e	enum:RING_MODE	file:
 RING_MODE_MASTER_AND_ATTACH	src/demo.c	/^  RING_MODE_MASTER_AND_ATTACH$/;"	e	enum:RING_MODE	file:
 RING_MODE_MASTER_AND_ATTACH	src/dpi_demo.c	/^  RING_MODE_MASTER_AND_ATTACH$/;"	e	enum:RING_MODE	file:
+RING_MODE_MASTER_AND_ATTACH	src/dpi_loop.c	/^  RING_MODE_MASTER_AND_ATTACH$/;"	e	enum:RING_MODE	file:
 RING_MODE_MASTER_ONLY	src/demo.c	/^  RING_MODE_MASTER_ONLY,$/;"	e	enum:RING_MODE	file:
 RING_MODE_MASTER_ONLY	src/dpi_demo.c	/^  RING_MODE_MASTER_ONLY,$/;"	e	enum:RING_MODE	file:
+RING_MODE_MASTER_ONLY	src/dpi_loop.c	/^  RING_MODE_MASTER_ONLY,$/;"	e	enum:RING_MODE	file:
 RING_MODE_RUN_ON_MASTER	src/demo.c	/^  RING_MODE_RUN_ON_MASTER,$/;"	e	enum:RING_MODE	file:
 RING_MODE_RUN_ON_MASTER	src/dpi_demo.c	/^  RING_MODE_RUN_ON_MASTER,$/;"	e	enum:RING_MODE	file:
+RING_MODE_RUN_ON_MASTER	src/dpi_loop.c	/^  RING_MODE_RUN_ON_MASTER,$/;"	e	enum:RING_MODE	file:
 ROB_CONFIG	lib/dataplane/nlm_mars_registers.h	163;"	d
 RPMVERSION	libpcap/Makefile	/^	RPMVERSION=`cat VERSION | sed s\/-.*\/\/g`; \\$/;"	m
 RRFIXEDSZ	libpcap/Win32/Include/arpa/nameser.h	97;"	d
@@ -3579,11 +3601,11 @@ STACK_POOL_SIZE	libpcap/msdos/ndis2.c	66;"	d	file:
 STACK_SIZE	libpcap/msdos/ndis2.c	67;"	d	file:
 STATS_CNT_CONFIG	lib/dataplane/nlm_fms_registers.h	1348;"	d
 STATS_CNT_CONFIG	src/mtdemo.c	27;"	d	file:
-STATS_CNT_CONFIG	src/ringdemo.c	27;"	d	file:
+STATS_CNT_CONFIG	src/ringdemo.c	26;"	d	file:
 STATS_CNT_CONFIG	src/xaui_demo.c	31;"	d	file:
 STATS_MUX_SEL	lib/dataplane/nlm_fms_registers.h	1353;"	d
 STATS_MUX_SEL	src/mtdemo.c	28;"	d	file:
-STATS_MUX_SEL	src/ringdemo.c	28;"	d	file:
+STATS_MUX_SEL	src/ringdemo.c	27;"	d	file:
 STATS_MUX_SEL	src/xaui_demo.c	32;"	d	file:
 STATUS	libpcap/Win32/Include/arpa/nameser.h	112;"	d
 STATUS	libpcap/atmuni31.h	54;"	d
@@ -3594,8 +3616,8 @@ STATUS_INTERRUPT	libpcap/msdos/ndis2.h	/^        STATUS_INTERRUPT        = 4,$/;
 STATUS_RING_STATUS	libpcap/msdos/ndis2.h	/^        STATUS_RING_STATUS      = 1,$/;"	e	enum:__anon86
 STATUS_START_RESET	libpcap/msdos/ndis2.h	/^        STATUS_START_RESET      = 3,$/;"	e	enum:__anon86
 STDC_HEADERS	libpcap/config.h	228;"	d
-STOP_COUNTERS	src/demo.c	505;"	d	file:
-STOP_COUNTERS	src/dpi_demo.c	519;"	d	file:
+STOP_COUNTERS	src/demo.c	513;"	d	file:
+STOP_COUNTERS	src/dpi_loop.c	501;"	d	file:
 STP	libpcap/grammar.c	/^     STP = 338,$/;"	e	enum:yytokentype	file:
 STP	libpcap/grammar.c	268;"	d	file:
 STP	libpcap/tokdefs.h	/^     STP = 338,$/;"	e	enum:yytokentype
@@ -4246,6 +4268,7 @@ _U_	libpcap/sf-pcap.c	/^static const char rcsid[] _U_ =$/;"	v	file:
 _WINSOCKAPI_	libpcap/pcap-stdinc.h	49;"	d
 _XOPEN_SOURCE	src/demo.c	11;"	d	file:
 _XOPEN_SOURCE	src/dpi_demo.c	11;"	d	file:
+_XOPEN_SOURCE	src/dpi_loop.c	11;"	d	file:
 __BIG_ENDIAN	libpcap/Win32/Include/arpa/nameser.h	212;"	d
 __BIND	libpcap/Win32/Include/arpa/nameser.h	86;"	d
 __BYTE_ORDER	libpcap/Win32/Include/arpa/nameser.h	218;"	d
@@ -4484,6 +4507,7 @@ attach_ring	src/ringdemo.c	/^attach_ring (void *arg)$/;"	f	file:
 attach_ring	src/xaui_demo.c	/^attach_ring (void *arg)$/;"	f	file:
 attached_ring_id	src/demo.c	/^uint32_t attached_ring_id = 0;$/;"	v
 attached_ring_id	src/dpi_demo.c	/^uint32_t attached_ring_id = 0;$/;"	v
+attached_ring_id	src/dpi_loop.c	/^uint32_t attached_ring_id = 0;$/;"	v
 b	libpcap/gencode.h	/^	struct block *b;	\/* protocol checks *\/$/;"	m	struct:arth	typeref:struct:arth::block
 b	libpcap/grammar.c	/^		struct block *b;$/;"	m	struct:YYSTYPE::__anon77	typeref:struct:YYSTYPE::__anon77::block	file:
 b	libpcap/tokdefs.h	/^		struct block *b;$/;"	m	struct:YYSTYPE::__anon78	typeref:struct:YYSTYPE::__anon78::block
@@ -4586,6 +4610,8 @@ c	lib/dataplane/nlm_fms_formats.h	/^    uint8_t c;$/;"	m	struct:fms_tcam_row::__
 c	lib/dataplane/sha2.c	11;"	d	file:
 cache_db_group_id	lib/dataplane/nlm_packet_api_impl.h	/^  uint16_t cache_db_group_id; \/**< store the old database_id and group_id, used for stateful flows *\/$/;"	m	struct:nlm_flow
 caddr_t	libpcap/pcap-stdinc.h	63;"	d
+callback	src/dpi_demo.c	/^callback(u_char *useless, const struct pcap_pkthdr *pkthdr,$/;"	f
+callback	src/dpi_loop.c	/^callback(u_char *useless, const struct pcap_pkthdr *pkthdr,$/;"	f
 can_activate	libpcap/pcap-can-linux.c	/^can_activate(pcap_t* handle)$/;"	f	file:
 can_create	libpcap/pcap-can-linux.c	/^can_create(const char *device, char *ebuf)$/;"	f
 can_inject_linux	libpcap/pcap-can-linux.c	/^can_inject_linux(pcap_t *handle, const void *buf, size_t size)$/;"	f	file:
@@ -4616,9 +4642,8 @@ chunksize	lib/dataplane/nlm_packet_api_impl.h	/^  uint32_t chunksize;           
 cleanup_op	libpcap/pcap-int.h	/^	cleanup_op_t cleanup_op;$/;"	m	struct:pcap
 cleanup_op_t	libpcap/pcap-int.h	/^typedef void	(*cleanup_op_t)(pcap_t *);$/;"	t
 cli_config	src/xaui_demo.c	/^struct nlm_device_config *cli_config = NULL;$/;"	v	typeref:struct:nlm_device_config
-cli_run	src/ringdemo.c	/^cli_run(void *arg)$/;"	f
 clock_speed	src/demo.c	/^static double clock_speed = 0;$/;"	v	file:
-clock_speed	src/dpi_demo.c	/^static double clock_speed = 0;$/;"	v	file:
+clock_speed	src/dpi_loop.c	/^static double clock_speed = 0;$/;"	v	file:
 close	libpcap/pcap-dos.h	/^         void  (*close)(struct device *dev);$/;"	m	struct:device
 close_driver	libpcap/pcap-dos.c	/^static void close_driver (void)$/;"	f	file:
 close_with_IOP	libpcap/pcap-sita.c	/^static void close_with_IOP(int chassis, int geoslot, int flag) {$/;"	f	file:
@@ -4640,7 +4665,7 @@ common	libpcap/msdos/ndis2.h	/^        CommonChars *common;$/;"	m	struct:_CardHa
 compare_addresses	src/driver/netl7driver.c	/^compare_addresses (const void *a, const void *b)$/;"	f	file:
 compare_configs	lib/dataplane/fms_packet_api.c	/^compare_configs (struct nlm_device_config *master_config, struct nlm_device_config *config)$/;"	f	file:
 compile_db	src/demo.c	/^compile_db (void)$/;"	f	file:
-compile_db	src/dpi_demo.c	/^compile_db (void)$/;"	f	file:
+compile_db	src/dpi_loop.c	/^compile_db (void)$/;"	f	file:
 compile_db	src/mtdemo.c	/^compile_db (void)$/;"	f	file:
 compile_db	src/ringdemo.c	/^compile_db (void)$/;"	f	file:
 compile_db	src/xaui_demo.c	/^compile_db (void)$/;"	f	file:
@@ -4648,7 +4673,7 @@ complete	lib/dataplane/nlm_fms_formats.h	/^  uint16_t complete;$/;"	m	struct:fms
 complete	lib/dataplane/nlm_fms_formats.h	/^  uint8_t complete;$/;"	m	struct:fms_tcam_row
 compute_local_ud	libpcap/optimize.c	/^compute_local_ud(b)$/;"	f	file:
 compute_next_lfsr	src/demo.c	/^compute_next_lfsr (uint16_t value)$/;"	f	file:
-compute_next_lfsr	src/dpi_demo.c	/^compute_next_lfsr (uint16_t value)$/;"	f	file:
+compute_next_lfsr	src/dpi_loop.c	/^compute_next_lfsr (uint16_t value)$/;"	f	file:
 config	lib/dataplane/nlm_packet_api_impl.h	/^  struct nlm_device_config config;$/;"	m	struct:nlm_phy_device	typeref:struct:nlm_phy_device::nlm_device_config
 config	src/ringdemo.c	/^  struct nlm_device_config *config;$/;"	m	struct:thread_info	typeref:struct:thread_info::nlm_device_config	file:
 config	src/xaui_demo.c	/^  struct nlm_device_config *config;$/;"	m	struct:thread_info	typeref:struct:thread_info::nlm_device_config	file:
@@ -4745,11 +4770,13 @@ dataplane_thread	src/xaui_demo.c	/^dataplane_thread (thread_info_t *info)$/;"	f	
 datarootdir	libpcap/Makefile	/^datarootdir = ${prefix}\/share$/;"	m
 db	src/demo.c	/^static struct nlm_database *db;$/;"	v	typeref:struct:nlm_database	file:
 db	src/dpi_demo.c	/^static struct nlm_database *db;$/;"	v	typeref:struct:nlm_database	file:
+db	src/dpi_loop.c	/^static struct nlm_database *db;$/;"	v	typeref:struct:nlm_database	file:
 db	src/mtdemo.c	/^static struct nlm_database *db;$/;"	v	typeref:struct:nlm_database	file:
 db	src/ringdemo.c	/^static struct nlm_database *db;$/;"	v	typeref:struct:nlm_database	file:
 db	src/xaui_demo.c	/^static struct nlm_database *db;$/;"	v	typeref:struct:nlm_database	file:
 db_file	src/demo.c	/^char *db_file = NULL;$/;"	v
 db_file	src/dpi_demo.c	/^char *db_file = NULL;$/;"	v
+db_file	src/dpi_loop.c	/^char *db_file = NULL;$/;"	v
 db_group_cnt	lib/dataplane/nlm_packet_api_impl.h	/^  uint8_t db_group_cnt;$/;"	m	struct:nlm_flow
 db_group_combination	lib/dataplane/nlm_packet_api_impl.h	/^  uint32_t db_group_combination;$/;"	m	struct:nlm_flow
 db_group_combination	lib/dataplane/nlm_packet_api_impl.h	/^  uint32_t db_group_combination;$/;"	m	struct:nlm_job
@@ -4757,6 +4784,7 @@ db_group_id	lib/dataplane/nlm_packet_api_impl.h	/^  uint16_t db_group_id[NLM_FMS
 db_id	lib/dataplane/nlm_fms_formats.h	/^  uint8_t db_id;$/;"	m	struct:fms_database_shadow_map_entry
 db_image	src/demo.c	/^static const void *db_image;$/;"	v	file:
 db_image	src/dpi_demo.c	/^static const void *db_image;$/;"	v	file:
+db_image	src/dpi_loop.c	/^static const void *db_image;$/;"	v	file:
 db_image	src/mtdemo.c	/^static const void *db_image;$/;"	v	file:
 db_image	src/ringdemo.c	/^static const void *db_image;$/;"	v	file:
 db_image	src/xaui_demo.c	/^static const void *db_image;$/;"	v	file:
@@ -4765,6 +4793,7 @@ db_size	lib/dataplane/nlm_mars_registers.h	/^    uint32_t db_size:5;$/;"	m	struc
 db_size	lib/dataplane/nlm_mars_registers.h	/^    uint32_t db_size:5;$/;"	m	struct:entry_ram_config::__anon2
 db_size	src/demo.c	/^static uint32_t db_size;$/;"	v	file:
 db_size	src/dpi_demo.c	/^static uint32_t db_size;$/;"	v	file:
+db_size	src/dpi_loop.c	/^static uint32_t db_size;$/;"	v	file:
 db_size	src/mtdemo.c	/^static uint32_t db_size;$/;"	v	file:
 db_size	src/ringdemo.c	/^static uint32_t db_size;$/;"	v	file:
 db_size	src/xaui_demo.c	/^static uint32_t db_size;$/;"	v	file:
@@ -4810,7 +4839,7 @@ ddr_chunksize	lib/dataplane/nlm_packet_api_impl.h	/^  uint32_t ddr_chunksize;   
 ddr_dma_area	lib/dataplane/nlm_packet_api_impl.h	/^  void *ddr_dma_area;$/;"	m	struct:nlm_phy_device
 ddr_dma_area_lock	lib/dataplane/nlm_packet_api_impl.h	/^  spinlock_t ddr_dma_area_lock;$/;"	m	struct:nlm_phy_device
 ddr_size	src/demo.c	/^static uint32_t ddr_size = 0;$/;"	v	file:
-ddr_size	src/dpi_demo.c	/^static uint32_t ddr_size = 0;$/;"	v	file:
+ddr_size	src/dpi_loop.c	/^static uint32_t ddr_size = 0;$/;"	v	file:
 ddr_size	src/ringdemo.c	/^static uint64_t ddr_size = 0;$/;"	v	file:
 ddr_size	src/xaui_demo.c	/^static uint64_t ddr_size = 0;$/;"	v	file:
 deadstmt	libpcap/optimize.c	/^deadstmt(s, last)$/;"	f	file:
@@ -4833,9 +4862,9 @@ destinAdr	libpcap/msdos/pkt_rx0.asm	/^   destinAdr   db  6           dup (0)    
 destroy_proc_entries	src/driver/netl7driver.c	/^destroy_proc_entries ()$/;"	f	file:
 destroy_ring	libpcap/pcap-linux.c	/^destroy_ring(pcap_t *handle)$/;"	f	file:
 detect_clock_skew	src/demo.c	/^detect_clock_skew (struct nlm_device *device)$/;"	f	file:
-detect_clock_skew	src/dpi_demo.c	/^detect_clock_skew (struct nlm_device *device)$/;"	f	file:
+detect_clock_skew	src/dpi_loop.c	/^detect_clock_skew (struct nlm_device *device)$/;"	f	file:
 detect_clock_speed	src/demo.c	/^detect_clock_speed (struct nlm_device *device)$/;"	f	file:
-detect_clock_speed	src/dpi_demo.c	/^detect_clock_speed (struct nlm_device *device)$/;"	f	file:
+detect_clock_speed	src/dpi_loop.c	/^detect_clock_speed (struct nlm_device *device)$/;"	f	file:
 dev_base	libpcap/pcap-dos.c	/^const struct device *dev_base   = &pkt_dev;  \/* list of network devices *\/$/;"	v	typeref:struct:device
 device	libpcap/pcap-dos.h	/^  struct device {$/;"	s
 device	libpcap/pcap-int.h	/^	char	*device;	\/* device name *\/$/;"	m	struct:pcap_md
@@ -4882,11 +4911,12 @@ dma_in_progress	lib/dataplane/nlm_packet_api_impl.h	/^  uint32_t dma_in_progress
 dmamem_size	src/driver/netl7driver.c	/^static ulong dmamem_size = 0;$/;"	v	file:
 do_attach	src/demo.c	/^uint32_t do_attach = 0;$/;"	v
 do_attach	src/dpi_demo.c	/^uint32_t do_attach = 0;$/;"	v
-do_one_device	src/dpi_demo.c	/^do_one_device(void)$/;"	f
+do_attach	src/dpi_loop.c	/^uint32_t do_attach = 0;$/;"	v
+do_one_device	src/dpi_loop.c	/^do_one_device(void)$/;"	f
 do_one_device_run	src/demo.c	/^do_one_device_run ()$/;"	f
-do_one_device_run	src/dpi_demo.c	/^do_one_device_run ()$/;"	f
+do_one_device_run	src/dpi_loop.c	/^do_one_device_run ()$/;"	f
 do_one_device_run_famos	src/demo.c	/^do_one_device_run_famos ()$/;"	f
-do_one_device_run_famos	src/dpi_demo.c	/^do_one_device_run_famos ()$/;"	f
+do_one_device_run_famos	src/dpi_loop.c	/^do_one_device_run_famos ()$/;"	f
 dom	libpcap/gencode.h	/^	uset dom;$/;"	m	struct:block
 domakedev	libpcap/pcap-bpf.c	87;"	d	file:
 domakedev	libpcap/pcap-bpf.c	91;"	d	file:
@@ -4908,12 +4938,12 @@ dump_interface_list	libpcap/pcap-sita.c	/^static void dump_interface_list(void) 
 dump_interface_list_p	libpcap/pcap-sita.c	/^static void dump_interface_list_p(void) {$/;"	f	file:
 dump_pkt_stub	libpcap/msdos/pktdrvr.c	/^static void dump_pkt_stub (void)$/;"	f	file:
 dump_registers_fname	src/demo.c	/^dump_registers_fname (struct nlm_device *dev, const char *fname)$/;"	f
-dump_registers_fname	src/dpi_demo.c	/^dump_registers_fname (struct nlm_device *dev, const char *fname)$/;"	f
+dump_registers_fname	src/dpi_loop.c	/^dump_registers_fname (struct nlm_device *dev, const char *fname)$/;"	f
 dump_registers_fp	src/demo.c	/^dump_registers_fp (FILE *fp, struct nlm_device *dev)$/;"	f
-dump_registers_fp	src/dpi_demo.c	/^dump_registers_fp (FILE *fp, struct nlm_device *dev)$/;"	f
+dump_registers_fp	src/dpi_loop.c	/^dump_registers_fp (FILE *fp, struct nlm_device *dev)$/;"	f
 dump_unit_table	libpcap/pcap-sita.c	/^static void dump_unit_table(void) {$/;"	f	file:
 dump_words	src/demo.c	/^dump_words (FILE *fp, uint32_t *base, size_t n_words)$/;"	f
-dump_words	src/dpi_demo.c	/^dump_words (FILE *fp, uint32_t *base, size_t n_words)$/;"	f
+dump_words	src/dpi_loop.c	/^dump_words (FILE *fp, uint32_t *base, size_t n_words)$/;"	f
 dup_sockaddr	libpcap/inet.c	/^dup_sockaddr(struct sockaddr *sa, size_t sa_length)$/;"	f
 dynamic_memory_init	src/driver/netl7driver.c	/^dynamic_memory_init (void)$/;"	f	file:
 e	libpcap/grammar.c	/^	u_char *e;$/;"	m	union:YYSTYPE	file:
@@ -4951,7 +4981,7 @@ endpoint_number	libpcap/pcap/usb.h	/^	u_int8_t endpoint_number;$/;"	m	struct:_us
 endservent	libpcap/Win32/Src/getservent.c	/^endservent()$/;"	f
 endstruc	libpcap/msdos/pkt_rx1.s	/^endstruc$/;"	l
 engine_clock_skew	src/demo.c	/^static double engine_clock_skew = 0;$/;"	v	file:
-engine_clock_skew	src/dpi_demo.c	/^static double engine_clock_skew = 0;$/;"	v	file:
+engine_clock_skew	src/dpi_loop.c	/^static double engine_clock_skew = 0;$/;"	v	file:
 engine_freq	src/mtdemo.c	/^uint32_t engine_freq;$/;"	v
 engine_state	lib/dataplane/nlm_fms_formats.h	/^      struct fms_engine_state *engine_state;$/;"	m	union:hw_pdf_descriptor::__anon12	typeref:struct:hw_pdf_descriptor::__anon12::fms_engine_state
 enhanced_packet_block	libpcap/sf-pcap-ng.c	/^struct enhanced_packet_block {$/;"	s	file:
@@ -4990,7 +5020,9 @@ ether_addr_octet	libpcap/nametoaddr.c	/^	unsigned char ether_addr_octet[6];$/;"	
 ethertype_to_ppptype	libpcap/gencode.c	/^ethertype_to_ppptype(proto)$/;"	f	file:
 etype	libpcap/pcap-dos.c	/^static WORD etype;$/;"	v	file:
 eval_str	src/demo.c	/^char eval_str[100000]="abcd";$/;"	v
-eval_str	src/dpi_demo.c	/^char eval_str[100000]="abcd";$/;"	v
+eval_str	src/dpi_demo.c	/^unsigned char eval_str[64]="abcd";$/;"	v
+eval_str	src/dpi_loop.c	/^unsigned char eval_str[64]="abcd";$/;"	v
+eval_str	src/ringdemo.c	/^char eval_str[100000]="abcd";$/;"	v
 event_type	libpcap/pcap/usb.h	/^	u_int8_t event_type;$/;"	m	struct:_usb_header
 event_type	libpcap/pcap/usb.h	/^	u_int8_t event_type;$/;"	m	struct:_usb_header_mmapped
 exact_offset	lib/dataplane/nlm_fms_formats.h	/^  uint16_t exact_offset;$/;"	m	struct:fms_row_accept_flags
@@ -5062,20 +5094,23 @@ flag_binding	src/xaui_demo.c	/^static uint32_t flag_binding = 1;$/;"	v	file:
 flag_db_file	src/mtdemo.c	/^char *flag_db_file;$/;"	v
 flag_db_file	src/ringdemo.c	/^static char *flag_db_file;$/;"	v	file:
 flag_db_file	src/xaui_demo.c	/^static char *flag_db_file;$/;"	v	file:
+flag_db_id	src/dpi_demo.c	/^static uint32_t flag_db_id = 0;$/;"	v	file:
 flag_debug	src/fms_compiler.c	/^static int flag_debug = 0;$/;"	v	file:
 flag_error	src/mtdemo.c	/^uint32_t flag_error = 0;$/;"	v
 flag_flow_test	src/demo.c	/^static uint32_t flag_flow_test = 0;$/;"	v	file:
-flag_flow_test	src/dpi_demo.c	/^static uint32_t flag_flow_test = 0;$/;"	v	file:
+flag_flow_test	src/dpi_loop.c	/^static uint32_t flag_flow_test = 0;$/;"	v	file:
+flag_group_id	src/dpi_demo.c	/^static uint32_t flag_group_id = 1;$/;"	v	file:
+flag_group_id	src/dpi_loop.c	/^static uint32_t flag_group_id = 1;$/;"	v	file:
 flag_group_id	src/mtdemo.c	/^uint32_t flag_group_id = 1;$/;"	v
 flag_group_id	src/ringdemo.c	/^static uint32_t flag_group_id = 1;$/;"	v	file:
 flag_group_id	src/xaui_demo.c	/^static uint32_t flag_group_id = 1;$/;"	v	file:
 flag_mml	src/demo.c	/^static uint32_t flag_mml = 0;$/;"	v	file:
-flag_mml	src/dpi_demo.c	/^static uint32_t flag_mml = 0;$/;"	v	file:
+flag_mml	src/dpi_loop.c	/^static uint32_t flag_mml = 0;$/;"	v	file:
 flag_mml	src/mtdemo.c	/^static uint32_t flag_mml = 0;$/;"	v	file:
 flag_mml	src/ringdemo.c	/^static uint32_t flag_mml = 0;$/;"	v	file:
 flag_mml	src/xaui_demo.c	/^static uint32_t flag_mml = 0;$/;"	v	file:
 flag_nongreedy	src/demo.c	/^static uint32_t flag_nongreedy = 0;$/;"	v	file:
-flag_nongreedy	src/dpi_demo.c	/^static uint32_t flag_nongreedy = 0;$/;"	v	file:
+flag_nongreedy	src/dpi_loop.c	/^static uint32_t flag_nongreedy = 0;$/;"	v	file:
 flag_nongreedy	src/mtdemo.c	/^static uint32_t flag_nongreedy = 0;$/;"	v	file:
 flag_nongreedy	src/ringdemo.c	/^static uint32_t flag_nongreedy = 0;$/;"	v	file:
 flag_nongreedy	src/xaui_demo.c	/^static uint32_t flag_nongreedy = 0;$/;"	v	file:
@@ -5085,6 +5120,8 @@ flag_nthreads	src/xaui_demo.c	/^static uint32_t flag_nthreads = 2;$/;"	v	file:
 flag_num_copies	src/mtdemo.c	/^uint32_t flag_num_copies = 1;$/;"	v
 flag_num_copies	src/ringdemo.c	/^static uint32_t flag_num_copies = 1;$/;"	v	file:
 flag_num_copies	src/xaui_demo.c	/^static uint32_t flag_num_copies = 1;$/;"	v	file:
+flag_numflows	src/dpi_demo.c	/^static uint32_t flag_numflows = 32;$/;"	v	file:
+flag_numflows	src/dpi_loop.c	/^static uint32_t flag_numflows = 32;$/;"	v	file:
 flag_numflows	src/mtdemo.c	/^uint32_t flag_numflows = 100;$/;"	v
 flag_numflows	src/ringdemo.c	/^static uint32_t flag_numflows = 100;$/;"	v	file:
 flag_numflows	src/xaui_demo.c	/^static uint32_t flag_numflows = 100;$/;"	v	file:
@@ -5095,8 +5132,11 @@ flag_packet_size	src/xaui_demo.c	/^static uint32_t flag_packet_size = 1024;$/;"	
 flag_random_traffic	src/mtdemo.c	/^static uint32_t flag_random_traffic = 0;$/;"	v	file:
 flag_random_traffic	src/ringdemo.c	/^static uint32_t flag_random_traffic = 0;$/;"	v	file:
 flag_random_traffic	src/xaui_demo.c	/^static uint32_t flag_random_traffic = 0;$/;"	v	file:
+flag_rule_id	src/dpi_demo.c	/^static uint32_t flag_rule_id = 1;$/;"	v	file:
+flag_rule_id	src/dpi_loop.c	/^static uint32_t flag_rule_id = 1;$/;"	v	file:
 flag_spill_size	src/demo.c	/^static uint32_t flag_spill_size = 0x180000;$/;"	v	file:
 flag_spill_size	src/dpi_demo.c	/^static uint32_t flag_spill_size = 0x180000;$/;"	v	file:
+flag_spill_size	src/dpi_loop.c	/^static uint32_t flag_spill_size = 0x180000;$/;"	v	file:
 flag_spill_size	src/mtdemo.c	/^uint32_t flag_spill_size = 0x180000;$/;"	v
 flag_spill_size	src/ringdemo.c	/^static uint32_t flag_spill_size = 0x180000;$/;"	v	file:
 flag_spill_size	src/xaui_demo.c	/^static uint32_t flag_spill_size = 0x180000;$/;"	v	file:
@@ -5112,6 +5152,7 @@ flag_use_manager	src/ringdemo.c	/^static uint32_t flag_use_manager = 0;$/;"	v	fi
 flag_use_manager	src/xaui_demo.c	/^static uint32_t flag_use_manager = 0;$/;"	v	file:
 flag_verbose	src/demo.c	/^uint32_t flag_verbose = 0;$/;"	v
 flag_verbose	src/dpi_demo.c	/^uint32_t flag_verbose = 0;$/;"	v
+flag_verbose	src/dpi_loop.c	/^uint32_t flag_verbose = 0;$/;"	v
 flag_verbose	src/fms_compiler.c	/^static int flag_verbose = 0;$/;"	v	file:
 flag_verbose	src/mtdemo.c	/^uint32_t flag_verbose = 0;$/;"	v
 flag_verbose	src/ringdemo.c	/^static uint32_t flag_verbose = 0;$/;"	v	file:
@@ -5167,6 +5208,7 @@ fms_result_type	lib/dataplane/nlm_fms_formats.h	/^} fms_result_type;$/;"	t	typer
 fms_ring_id	lib/dataplane/nlm_packet_api_impl.h	/^  uint8_t fms_ring_id;$/;"	m	struct:nlm_phy_device
 fms_row_accept_flags	lib/dataplane/nlm_fms_formats.h	/^struct fms_row_accept_flags$/;"	s
 fms_row_hw	lib/dataplane/nlm_fms_formats.h	/^union fms_row_hw$/;"	u
+fms_rst_hdr	src/dpi_loop.c	/^struct fms_rst_hdr{$/;"	s	file:
 fms_state_cnxt_block	lib/dataplane/nlm_fms_formats.h	/^struct fms_state_cnxt_block$/;"	s
 fms_tcam_row	lib/dataplane/nlm_fms_formats.h	/^struct fms_tcam_row$/;"	s
 fms_tcam_row_hw	lib/dataplane/nlm_fms_formats.h	/^struct fms_tcam_row_hw$/;"	s
@@ -5183,7 +5225,7 @@ frameSize	libpcap/msdos/ndis2.c	/^static WORD    frameSize      = 0;$/;"	v	file:
 freeStackPtr	libpcap/msdos/ndis2.c	/^static int     freeStackPtr = STACK_POOL_SIZE - 1;$/;"	v	file:
 freeStacks	libpcap/msdos/ndis2.c	/^static BYTE   *freeStacks   [STACK_POOL_SIZE];$/;"	v	file:
 free_db	src/demo.c	/^free_db (void)$/;"	f	file:
-free_db	src/dpi_demo.c	/^free_db (void)$/;"	f	file:
+free_db	src/dpi_loop.c	/^free_db (void)$/;"	f	file:
 free_db	src/mtdemo.c	/^free_db (void)$/;"	f	file:
 free_db	src/ringdemo.c	/^free_db (void)$/;"	f	file:
 free_db	src/xaui_demo.c	/^free_db (void)$/;"	f	file:
@@ -5355,6 +5397,7 @@ group_id	include/nlm_packet_api.h	/^          uint32_t group_id;      \/**< grou
 group_id	lib/dataplane/nlm_packet_api_impl.h	/^  uint16_t group_id;$/;"	m	struct:nlm_flow
 group_id	src/demo.c	/^uint32_t group_id = 1;$/;"	v
 group_id	src/dpi_demo.c	/^uint32_t group_id = 1;$/;"	v
+group_id	src/dpi_loop.c	/^uint32_t group_id = 1;$/;"	v
 h	libpcap/grammar.c	/^	bpf_u_int32 h;$/;"	m	union:YYSTYPE	file:
 h	libpcap/tokdefs.h	/^	bpf_u_int32 h;$/;"	m	union:YYSTYPE
 h1	libpcap/pcap-linux.c	/^	struct tpacket_hdr	*h1;$/;"	m	union:thdr	typeref:struct:thdr::tpacket_hdr	file:
@@ -5578,6 +5621,7 @@ init_manager_thread_fifo	lib/dataplane/fms_packet_api.c	/^init_manager_thread_fi
 init_output_fifo	lib/dataplane/fms_packet_api.c	/^init_output_fifo (nlm_phy_device_t *phy_device, char **p_free_ptr)$/;"	f	file:
 init_packet_memory	src/demo.c	/^init_packet_memory (char *packet_memory, uint32_t mem_size)$/;"	f	file:
 init_packet_memory	src/dpi_demo.c	/^init_packet_memory (char *packet_memory, uint32_t mem_size)$/;"	f	file:
+init_packet_memory	src/dpi_loop.c	/^init_packet_memory (char *packet_memory, uint32_t mem_size)$/;"	f	file:
 init_packet_memory	src/mtdemo.c	/^init_packet_memory (char *packet_memory, uint32_t mem_size)$/;"	f	file:
 init_packet_memory	src/ringdemo.c	/^init_packet_memory (char *packet_memory, uint32_t mem_size)$/;"	f	file:
 init_packet_memory	src/xaui_demo.c	/^init_packet_memory (char *packet_memory, uint32_t mem_size)$/;"	f	file:
@@ -5598,6 +5642,7 @@ inline	libpcap/pcap-dos.h	52;"	d
 inline	libpcap/pcap-stdinc.h	71;"	d
 input_data_file	src/demo.c	/^static char *input_data_file = NULL;$/;"	v	file:
 input_data_file	src/dpi_demo.c	/^static char *input_data_file = NULL;$/;"	v	file:
+input_data_file	src/dpi_loop.c	/^static char *input_data_file = NULL;$/;"	v	file:
 input_data_file	src/mtdemo.c	/^char *input_data_file;$/;"	v
 input_data_file	src/ringdemo.c	/^static char *input_data_file;$/;"	v	file:
 input_data_file	src/xaui_demo.c	/^static char *input_data_file;$/;"	v	file:
@@ -5653,6 +5698,8 @@ ip6_hops	libpcap/Win32/Include/ip6_misc.h	99;"	d
 ip6_nxt	libpcap/Win32/Include/ip6_misc.h	97;"	d
 ip6_plen	libpcap/Win32/Include/ip6_misc.h	96;"	d
 ip6_vfc	libpcap/Win32/Include/ip6_misc.h	94;"	d
+ip_chksum	src/dpi_demo.c	/^ip_chksum(struct iphdr* _iph)$/;"	f
+ip_chksum	src/dpi_loop.c	/^ip_chksum(struct iphdr* _iph)$/;"	f
 iptos	libpcap/findalldevstest.c	/^static char *iptos(bpf_u_int32 in)$/;"	f	file:
 irelop	libpcap/grammar.y	/^irelop:	  LEQ			{ $$ = BPF_JGT; }$/;"	l
 irq	libpcap/pcap-dos.h	/^         int    irq;            \/* device IRQ number        *\/$/;"	m	struct:device
@@ -5662,6 +5709,7 @@ is_const	libpcap/optimize.c	/^	int is_const;$/;"	m	struct:vmapinfo	file:
 is_lane	libpcap/gencode.c	/^static int is_lane = 0;$/;"	v	file:
 is_master	src/demo.c	/^uint32_t is_master = 0;$/;"	v
 is_master	src/dpi_demo.c	/^uint32_t is_master = 0;$/;"	v
+is_master	src/dpi_loop.c	/^uint32_t is_master = 0;$/;"	v
 is_pppoes	libpcap/gencode.c	/^static int is_pppoes = 0;$/;"	v	file:
 is_stateless	lib/dataplane/nlm_packet_api_impl.h	/^  uint32_t is_stateless:1;$/;"	m	struct:nlm_flow
 iso	libpcap/pcap/usb.h	/^		iso_rec iso;$/;"	m	union:_usb_header_mmapped::__anon84
@@ -5740,11 +5788,13 @@ load_database	src/ringdemo.c	/^load_database (struct nlm_device *device, const c
 load_database	src/xaui_demo.c	/^load_database (struct nlm_device *device, const char *db_file_name)$/;"	f	file:
 load_db	src/demo.c	/^load_db (struct nlm_device *device, uint32_t db_id)$/;"	f	file:
 load_db	src/dpi_demo.c	/^load_db (struct nlm_device *device, uint32_t db_id)$/;"	f	file:
+load_db	src/dpi_loop.c	/^load_db (struct nlm_device *device, uint32_t db_id)$/;"	f	file:
 load_db	src/mtdemo.c	/^load_db (struct nlm_device *device, uint32_t db_id)$/;"	f	file:
 load_db	src/ringdemo.c	/^load_db (struct nlm_device *device, uint32_t db_id)$/;"	f	file:
 load_db	src/xaui_demo.c	/^load_db (struct nlm_device *device, uint32_t db_id)$/;"	f	file:
 load_db_from_file	src/demo.c	/^load_db_from_file (struct nlm_device *device, const char *file, uint32_t db_id)$/;"	f
 load_db_from_file	src/dpi_demo.c	/^load_db_from_file (struct nlm_device *device, const char *file, uint32_t db_id)$/;"	f
+load_db_from_file	src/dpi_loop.c	/^load_db_from_file (struct nlm_device *device, const char *file, uint32_t db_id)$/;"	f
 loader_cmd_mem	lib/dataplane/nlm_packet_api_impl.h	/^  struct fms_loader_command loader_cmd_mem[NLM_FMS_LOADER_CMD_BUFF_SIZE];$/;"	m	struct:nlm_phy_device	typeref:struct:nlm_phy_device::fms_loader_command
 lock	include/nlm_sync.h	/^    uint32_t lock;$/;"	m	union:spinlock_t::__anon111
 lock	src/driver/netl7driver.c	/^  spinlock_t lock;$/;"	m	struct:nlm_device	file:
@@ -5818,11 +5868,12 @@ main	libpcap/opentest.c	/^main(int argc, char **argv)$/;"	f
 main	libpcap/selpolltest.c	/^main(int argc, char **argv)$/;"	f
 main	src/demo.c	/^main (int ac, char **av)$/;"	f
 main	src/dpi_demo.c	/^main (int ac, char **av)$/;"	f
+main	src/dpi_loop.c	/^main (int ac, char **av)$/;"	f
 main	src/fms_compiler.c	/^main (int argc, char **argv)$/;"	f
 main	src/mtdemo.c	/^main (int ac, char*av[])$/;"	f
 main	src/ringdemo.c	/^main (int ac, char*av[])$/;"	f
 main	src/xaui_demo.c	/^main (int ac, char*av[])$/;"	f
-main2	src/dpi_demo.c	/^main2(int ac, char **av)$/;"	f
+main2	src/dpi_loop.c	/^main2(int ac, char **av)$/;"	f
 majVer	libpcap/msdos/pktdrvr.h	/^        BYTE  majVer;       \/* Major driver implementation ver.  *\/$/;"	m	struct:__anon97
 majorModuleVersion	libpcap/msdos/ndis2.h	/^        BYTE  majorModuleVersion;$/;"	m	struct:_CommonChars
 majorNdisVersion	libpcap/msdos/ndis2.h	/^        BYTE  majorNdisVersion;        \/* 2 - Latest version *\/$/;"	m	struct:_CommonChars
@@ -5854,6 +5905,7 @@ max_fs	libpcap/pcap-sita.c	/^static int			max_fs;$/;"	v	file:
 max_offset	lib/dataplane/nlm_fms_formats.h	/^  uint16_t max_offset;$/;"	m	struct:fms_row_accept_flags
 max_packet_size	src/demo.c	/^uint32_t max_packet_size = 32768;$/;"	v
 max_packet_size	src/dpi_demo.c	/^uint32_t max_packet_size = 32768;$/;"	v
+max_packet_size	src/dpi_loop.c	/^uint32_t max_packet_size = 32768;$/;"	v
 max_sz	libpcap/missing/snprintf.c	/^  size_t max_sz;$/;"	m	struct:state	file:
 max_threads	include/nlm_packet_api.h	/^  uint32_t max_threads;                         \/**< Maximum number of dataplane threads.$/;"	m	struct:nlm_device_config
 maxval	libpcap/optimize.c	/^static int maxval;$/;"	v	file:
@@ -5887,6 +5939,7 @@ min_match_length	lib/dataplane/nlm_fms_formats.h	/^  uint8_t min_match_length; \
 min_offset	lib/dataplane/nlm_fms_formats.h	/^  uint16_t min_offset;$/;"	m	struct:fms_row_accept_flags
 min_packet_size	src/demo.c	/^uint32_t min_packet_size = 64;$/;"	v
 min_packet_size	src/dpi_demo.c	/^uint32_t min_packet_size = 64;$/;"	v
+min_packet_size	src/dpi_loop.c	/^uint32_t min_packet_size = 64;$/;"	v
 minorModuleVersion	libpcap/msdos/ndis2.h	/^        BYTE  minorModuleVersion;$/;"	m	struct:_CommonChars
 minorNdisVersion	libpcap/msdos/ndis2.h	/^        BYTE  minorNdisVersion;        \/* 0                  *\/$/;"	m	struct:_CommonChars
 minor_rev	lib/dataplane/nlm_loader_common.h	/^  uint8_t minor_rev;$/;"	m	struct:nlm_db_file_preamble
@@ -6215,8 +6268,10 @@ num_of_copies	src/demo.c	/^static uint32_t num_of_copies = 0;$/;"	v	file:
 num_of_copies	src/demo.c	/^static uint32_t num_of_copies = 1;$/;"	v	file:
 num_of_copies	src/dpi_demo.c	/^static uint32_t num_of_copies = 0;$/;"	v	file:
 num_of_copies	src/dpi_demo.c	/^static uint32_t num_of_copies = 1;$/;"	v	file:
+num_of_copies	src/dpi_loop.c	/^static uint32_t num_of_copies = 0;$/;"	v	file:
+num_of_copies	src/dpi_loop.c	/^static uint32_t num_of_copies = 1;$/;"	v	file:
 num_of_flows	src/demo.c	/^static uint32_t num_of_flows = 1;$/;"	v	file:
-num_of_flows	src/dpi_demo.c	/^static uint32_t num_of_flows = 1;$/;"	v	file:
+num_of_flows	src/dpi_loop.c	/^static uint32_t num_of_flows = 1;$/;"	v	file:
 num_results	src/mtdemo.c	/^atomic_t num_results;$/;"	v
 num_results	src/ringdemo.c	/^static atomic_t num_results;$/;"	v	file:
 num_results	src/xaui_demo.c	/^static atomic_t num_results;$/;"	v	file:
@@ -6285,6 +6340,7 @@ option_header	libpcap/sf-pcap-ng.c	/^struct option_header {$/;"	s	file:
 option_length	libpcap/sf-pcap-ng.c	/^	u_short		option_length;$/;"	m	struct:option_header	file:
 options	src/demo.c	/^static const struct option options[] =$/;"	v	typeref:struct:option	file:
 options	src/dpi_demo.c	/^static const struct option options[] =$/;"	v	typeref:struct:option	file:
+options	src/dpi_loop.c	/^static const struct option options[] =$/;"	v	typeref:struct:option	file:
 options	src/fms_compiler.c	/^static const struct option options[] =$/;"	v	typeref:struct:option	file:
 options	src/mtdemo.c	/^static const struct option options[] =$/;"	v	typeref:struct:option	file:
 options	src/ringdemo.c	/^static const struct option options[] =$/;"	v	typeref:struct:option	file:
@@ -6327,10 +6383,15 @@ packet_base_virt	include/nlm_packet_api.h	/^  const void *packet_base_virt;     
 packet_block	libpcap/sf-pcap-ng.c	/^struct packet_block {$/;"	s	file:
 packet_enqueue_policy	lib/dataplane/nlm_packet_api_impl.h	/^  uint8_t packet_enqueue_policy;            \/* packet enqueue policy to use *\/$/;"	m	struct:nlm_phy_device
 packet_header	libpcap/pcap-enet.c	/^struct packet_header {$/;"	s	file:
-packet_process	src/dpi_demo.c	/^packet_process (struct nlm_device *device, struct nlm_device_config *config)$/;"	f	file:
+packet_process	src/dpi_demo.c	/^packet_process (struct nlm_device *device, struct nlm_device_config *config, int flag_stateful)$/;"	f	file:
+packet_process	src/dpi_loop.c	/^packet_process (struct nlm_device *device, struct nlm_device_config *config, int flag_stateful)$/;"	f	file:
 packet_process	src/mtdemo.c	/^packet_process (struct nlm_device *device, nlm_uintptr_t tid)$/;"	f	file:
 packet_process	src/ringdemo.c	/^packet_process (struct nlm_device *device, uint32_t tid,$/;"	f	file:
 packet_process	src/xaui_demo.c	/^packet_process (struct nlm_device *device, uint32_t tid,$/;"	f	file:
+packet_rx	src/dpi_demo.c	/^packet_rx(void *arg)$/;"	f
+packet_rx	src/dpi_loop.c	/^packet_rx(void *arg)$/;"	f
+packet_tx	src/dpi_demo.c	/^packet_tx (struct nlm_device *device, struct nlm_flow *flow, fms_flow_type flow_type)$/;"	f	file:
+packet_tx	src/dpi_loop.c	/^packet_tx (struct nlm_device *device, struct nlm_flow *flow, fms_flow_type flow_type)$/;"	f	file:
 packetmem_base	src/driver/netl7driver.c	/^  unsigned long long packetmem_base; \/* chunk of packet memory for this device *\/$/;"	m	struct:nlm_device	file:
 packetmem_size	src/driver/netl7driver.c	/^  u32 packetmem_size;$/;"	m	struct:nlm_device	file:
 packets_read	libpcap/pcap-int.h	/^	u_int	packets_read;	\/* count of packets read with recvfrom() *\/$/;"	m	struct:pcap_md
@@ -6661,7 +6722,7 @@ pd	libpcap/pcap-int.h	/^	pcap_t *pd;$/;"	m	struct:oneshot_userdata
 pd	libpcap/selpolltest.c	/^static pcap_t *pd;$/;"	v	file:
 pd_base	lib/dataplane/nlm_packet_api_impl.h	/^  struct hw_pd_descriptor *pd_base;         \/* base of the PD area in system memory *\/$/;"	m	struct:nlm_phy_device	typeref:struct:nlm_phy_device::hw_pd_descriptor
 pd_linking_off	src/demo.c	/^static uint32_t pd_linking_off = 0;$/;"	v	file:
-pd_linking_off	src/dpi_demo.c	/^static uint32_t pd_linking_off = 0;$/;"	v	file:
+pd_linking_off	src/dpi_loop.c	/^static uint32_t pd_linking_off = 0;$/;"	v	file:
 pd_nla	lib/dataplane/nlm_fms_formats.h	/^  struct hw_pd_nla pd_nla;$/;"	m	struct:hw_fd_descriptor	typeref:struct:hw_fd_descriptor::hw_pd_nla
 pd_nla	lib/dataplane/nlm_fms_formats.h	/^  struct hw_pd_nla pd_nla;$/;"	m	struct:hw_pd_descriptor	typeref:struct:hw_pd_descriptor::hw_pd_nla
 pdf_base	lib/dataplane/nlm_packet_api_impl.h	/^      struct hw_pdf_descriptor *pdf_base;       \/* base of the PDF area in system memory *\/$/;"	m	union:nlm_phy_device::__anon74	typeref:struct:nlm_phy_device::__anon74::hw_pdf_descriptor
@@ -6744,6 +6805,7 @@ prev_post_hook	libpcap/pcap-dos.c	/^static void (*prev_post_hook) (void);$/;"	v	
 print_regs	lib/dataplane/print_reg.c	/^print_regs(struct nlm_device_config *config)$/;"	f
 print_usage	src/demo.c	/^print_usage (char *progname)$/;"	f	file:
 print_usage	src/dpi_demo.c	/^print_usage (char *progname)$/;"	f	file:
+print_usage	src/dpi_loop.c	/^print_usage (char *progname)$/;"	f	file:
 print_usage	src/fms_compiler.c	/^print_usage (char *progname)$/;"	f	file:
 print_usage	src/mtdemo.c	/^print_usage (char *progname)$/;"	f	file:
 print_usage	src/ringdemo.c	/^print_usage (char *progname)$/;"	f	file:
@@ -6757,6 +6819,7 @@ proc_dropped	libpcap/pcap-int.h	/^	long	proc_dropped; \/* packets reported dropp
 proc_entry	src/driver/netl7driver.c	/^  struct proc_dir_entry *proc_entry;$/;"	m	struct:nlm_device	typeref:struct:nlm_device::proc_dir_entry	file:
 process_args	src/demo.c	/^process_args (int ac, char **av)$/;"	f	file:
 process_args	src/dpi_demo.c	/^process_args (int ac, char **av)$/;"	f	file:
+process_args	src/dpi_loop.c	/^process_args (int ac, char **av)$/;"	f	file:
 process_args	src/fms_compiler.c	/^process_args (int argc, char **argv)$/;"	f	file:
 process_args	src/mtdemo.c	/^process_args (int ac, char **av)$/;"	f	file:
 process_args	src/ringdemo.c	/^process_args (int ac, char **av)$/;"	f	file:
@@ -6869,7 +6932,7 @@ read_bytes	libpcap/sf-pcap-ng.c	/^read_bytes(FILE *fp, void *buf, size_t bytes_t
 read_client_data	libpcap/pcap-sita.c	/^static int read_client_data (int fd) {$/;"	f	file:
 read_client_nbytes	libpcap/pcap-sita.c	/^static int read_client_nbytes(int fd, int count, unsigned char *buf) {$/;"	f	file:
 read_device_register	src/demo.c	/^read_device_register (struct nlm_device *dev, uint32_t reg)$/;"	f
-read_device_register	src/dpi_demo.c	/^read_device_register (struct nlm_device *dev, uint32_t reg)$/;"	f
+read_device_register	src/dpi_loop.c	/^read_device_register (struct nlm_device *dev, uint32_t reg)$/;"	f
 read_infile	libpcap/filtertest.c	/^read_infile(char *fname)$/;"	f	file:
 read_op	libpcap/pcap-int.h	/^	read_op_t read_op;$/;"	m	struct:pcap
 read_op_t	libpcap/pcap-int.h	/^typedef int	(*read_op_t)(pcap_t *, int cnt, pcap_handler, u_char *);$/;"	t
@@ -6909,6 +6972,7 @@ reg_off_ll	libpcap/gencode.c	/^static int reg_off_ll;$/;"	v	file:
 reg_off_macpl	libpcap/gencode.c	/^static int reg_off_macpl;$/;"	v	file:
 regex_str	src/demo.c	/^static char *regex_str = rule_str;$/;"	v	file:
 regex_str	src/dpi_demo.c	/^static char *regex_str = rule_str;$/;"	v	file:
+regex_str	src/dpi_loop.c	/^static char *regex_str = rule_str;$/;"	v	file:
 regex_str	src/mtdemo.c	/^static char *regex_str = rule_str;$/;"	v	file:
 regex_str	src/ringdemo.c	/^static char *regex_str = rule_str;$/;"	v	file:
 regex_str	src/xaui_demo.c	/^static char *regex_str = rule_str;$/;"	v	file:
@@ -6948,6 +7012,7 @@ rfmon	libpcap/pcap-int.h	/^	int	rfmon;$/;"	m	struct:pcap_opt
 ring_id	include/nlm_packet_api.h	/^  nlm_ring_id ring_id;                          \/**< 0 - master ring$/;"	m	struct:nlm_device_config
 ring_mode	src/demo.c	/^enum RING_MODE ring_mode;$/;"	v	typeref:enum:RING_MODE
 ring_mode	src/dpi_demo.c	/^enum RING_MODE ring_mode;$/;"	v	typeref:enum:RING_MODE
+ring_mode	src/dpi_loop.c	/^enum RING_MODE ring_mode;$/;"	v	typeref:enum:RING_MODE
 rm_base_seg	libpcap/msdos/pktdrvr.c	/^  LOCAL WORD                rm_base_seg, rm_base_sel;$/;"	v
 rm_base_sel	libpcap/msdos/pktdrvr.c	/^  LOCAL WORD                rm_base_seg, rm_base_sel;$/;"	v
 rm_mem	libpcap/msdos/pktdrvr.c	/^  static _go32_dpmi_seginfo rm_mem;$/;"	v	file:
@@ -6977,15 +7042,16 @@ rule_id	include/nlm_packet_api.h	/^          uint32_t rule_id;       \/**< rule 
 rule_id	lib/dataplane/nlm_fms_formats.h	/^  uint16_t rule_id;$/;"	m	struct:fms_row_accept_flags
 rule_str	src/demo.c	/^char rule_str[]="abcd";$/;"	v
 rule_str	src/dpi_demo.c	/^char rule_str[]="abcd";$/;"	v
+rule_str	src/dpi_loop.c	/^char rule_str[]="abcd";$/;"	v
 rule_str	src/mtdemo.c	/^char rule_str[]="abcd";$/;"	v
 rule_str	src/ringdemo.c	/^static char rule_str[]="abcd";$/;"	v	file:
 rule_str	src/xaui_demo.c	/^static char rule_str[]="abcd";$/;"	v	file:
 run_abcd_on_all	src/demo.c	/^run_abcd_on_all (uint32_t device_cnt, uint32_t packet_size)$/;"	f
-run_abcd_on_all	src/dpi_demo.c	/^run_abcd_on_all (uint32_t device_cnt, uint32_t packet_size)$/;"	f
+run_abcd_on_all	src/dpi_loop.c	/^run_abcd_on_all (uint32_t device_cnt, uint32_t packet_size)$/;"	f
 run_abcd_on_device1	src/demo.c	/^run_abcd_on_device1 (uint32_t device_id, uint32_t packet_size, struct nlm_device_config *config,$/;"	f
-run_abcd_on_device1	src/dpi_demo.c	/^run_abcd_on_device1 (uint32_t device_id, uint32_t packet_size, struct nlm_device_config *config,$/;"	f
+run_abcd_on_device1	src/dpi_loop.c	/^run_abcd_on_device1 (uint32_t device_id, uint32_t packet_size, struct nlm_device_config *config,$/;"	f
 run_abcd_on_famos	src/demo.c	/^run_abcd_on_famos (uint32_t packet_size, char *packet_memory, uint32_t input_fifo_size,$/;"	f
-run_abcd_on_famos	src/dpi_demo.c	/^run_abcd_on_famos (uint32_t packet_size, char *packet_memory, uint32_t input_fifo_size,$/;"	f
+run_abcd_on_famos	src/dpi_loop.c	/^run_abcd_on_famos (uint32_t packet_size, char *packet_memory, uint32_t input_fifo_size,$/;"	f
 rxBufDescrRec	libpcap/msdos/ndis2.h	/^        RxBufDescrRec rxBufDescrRec[NDIS_RX_BUF_LENGTH];$/;"	m	struct:_RxBufDescr
 rxBuffer	libpcap/msdos/pkt_rx0.asm	/^   rxBuffer    db  RX_BUF_SIZE dup (0)        ; RX buffer$/;"	d
 rxBufferAllocSize	libpcap/msdos/ndis2.h	/^        WORD   rxBufferAllocSize;$/;"	m	struct:_MacChars
@@ -7088,7 +7154,7 @@ s8	lib/dataplane/nlm_fms_formats.h	/^    uint8_t s8;$/;"	m	struct:fms_tcam_row::
 sa_family_t	libpcap/Win32/Include/ip6_misc.h	/^typedef unsigned short	sa_family_t;$/;"	t
 sappend	libpcap/gencode.c	/^sappend(s0, s1)$/;"	f
 scale_ratio	src/demo.c	/^static double scale_ratio = 0;$/;"	v	file:
-scale_ratio	src/dpi_demo.c	/^static double scale_ratio = 0;$/;"	v	file:
+scale_ratio	src/dpi_loop.c	/^static double scale_ratio = 0;$/;"	v	file:
 scan_proc_net_dev	libpcap/pcap-linux.c	/^scan_proc_net_dev(pcap_if_t **devlistp, char *errbuf)$/;"	f	file:
 scan_sys_class_net	libpcap/pcap-linux.c	/^scan_sys_class_net(pcap_if_t **devlistp, char *errbuf)$/;"	f	file:
 sccsid	libpcap/Win32/Src/ffs.c	/^static char sccsid[] = "@(#)ffs.c	8.1 (Berkeley) 6\/4\/93";$/;"	v	file:
@@ -7149,8 +7215,8 @@ setservent	libpcap/Win32/Src/getservent.c	/^setservent(f)$/;"	f
 setup	libpcap/pcap/usb.h	/^		pcap_usb_setup setup;$/;"	m	union:_usb_header_mmapped::__anon84
 setup	libpcap/pcap/usb.h	/^	pcap_usb_setup setup;$/;"	m	struct:_usb_header
 setup_configs_and_devices	src/demo.c	/^setup_configs_and_devices (struct nlm_device_config *config_m, struct nlm_device_config *config_a,$/;"	f
-setup_configs_and_devices	src/dpi_demo.c	/^setup_configs_and_devices (struct nlm_device_config *config_m, struct nlm_device_config *config_a,$/;"	f
-setup_configs_and_devices2	src/dpi_demo.c	/^setup_configs_and_devices2 (struct nlm_device_config *config_m, struct nlm_device_config *config_a,$/;"	f
+setup_configs_and_devices	src/dpi_loop.c	/^setup_configs_and_devices (struct nlm_device_config *config_m, struct nlm_device_config *config_a,$/;"	f
+setup_configs_and_devices2	src/dpi_loop.c	/^setup_configs_and_devices2 (struct nlm_device_config *config_m, struct nlm_device_config *config_a,$/;"	f
 setup_counters_mars2	src/mtdemo.c	/^setup_counters_mars2 (void)$/;"	f	file:
 setup_flag	libpcap/pcap/usb.h	/^	char setup_flag;\/*if !=0 the urb setup header is not present*\/$/;"	m	struct:_usb_header
 setup_flag	libpcap/pcap/usb.h	/^	char setup_flag;\/*if !=0 the urb setup header is not present*\/$/;"	m	struct:_usb_header_mmapped
@@ -7321,7 +7387,7 @@ tcam	lib/dataplane/nlm_fms_formats.h	/^  struct fms_tcam_row_hw tcam;$/;"	m	unio
 tdqsq_delay	lib/dataplane/nlm_fms_formats.h	/^  uint32_t tdqsq_delay;$/;"	m	struct:ddr3_state
 term	libpcap/grammar.y	/^term:	  rterm$/;"	l
 test_max_flow	src/demo.c	/^test_max_flow (void)$/;"	f	file:
-test_max_flow	src/dpi_demo.c	/^test_max_flow (void)$/;"	f	file:
+test_max_flow	src/dpi_loop.c	/^test_max_flow (void)$/;"	f	file:
 thdr	libpcap/pcap-linux.c	/^union thdr {$/;"	u	file:
 theend	libpcap/missing/snprintf.c	/^  unsigned char *theend;$/;"	m	struct:state	file:
 this_op	libpcap/optimize.c	/^this_op(s)$/;"	f	file:
